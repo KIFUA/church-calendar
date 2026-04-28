@@ -1,0 +1,192 @@
+777-      <label className="text-[7px] font-black text-slate-500 uppercase block mb-0.5 leading-none">{label}</label>
+778-      <div className={`flex items-center bg-white border border-slate-200 px-1 h-6 shadow-sm ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+779:        <input type="text" disabled={disabled} value={hh || ""} onChange={handleHHChange} onKeyDown={handleKeyDown} placeholder="00" className="w-4 bg-transparent text-slate-900 text-[10px] text-center outline-none font-bold p-0" />
+780-        <span className="text-slate-400 text-[10px] font-bold">:</span>
+781:        <input ref={mmRef} type="text" disabled={disabled} value={mm || ""} onChange={handleMMChange} onKeyDown={handleKeyDown} placeholder="00" className="w-4 bg-transparent text-slate-900 text-[10px] text-center outline-none font-bold p-0" />
+782-      </div>
+783-    </div>
+--
+2545-                  <button 
+2546-                    onClick={handleResetFutureMonthsToTemplates}
+2547:                    disabled={resetStatus === 'loading' || resetStatus === 'success'}
+2548-                    className={`px-4 py-2 border rounded-xl text-xs font-bold uppercase transition-all ${
+2549-                      resetStatus === 'idle' ? 'bg-red-600/20 hover:bg-red-600/40 text-red-500 hover:text-red-400 border-red-600/30' :
+--
+2638-                      <h3 className="text-blue-400 font-bold text-sm uppercase leading-tight w-full">{g.label}</h3>
+2639-                      <div className="flex items-center gap-1 w-full justify-start bg-slate-900/50 p-1.5 rounded-lg border border-slate-700/50">
+2640:                        <button onClick={() => setEventGroups(prev => { const arr = [...prev]; if (idx > 0) [arr[idx-1], arr[idx]] = [arr[idx], arr[idx-1]]; return arr; })} disabled={idx === 0} className="text-slate-500 hover:text-white disabled:opacity-30 p-1"><ChevronUp size={14}/></button>
+2641:                        <button onClick={() => setEventGroups(prev => { const arr = [...prev]; if (idx < arr.length - 1) [arr[idx+1], arr[idx]] = [arr[idx], arr[idx+1]]; return arr; })} disabled={idx === eventGroups.length - 1} className="text-slate-500 hover:text-white disabled:opacity-30 p-1"><ChevronDown size={14}/></button>
+2642-                        <div className="h-4 w-[1px] bg-slate-700 mx-1" />
+2643-                        <button onClick={() => moveGroup(idx, 'event', 'music')} className="text-slate-500 hover:text-blue-400 p-1" title="Перемістити в Музику"><Music size={12}/></button>
+--
+2720-                      <h3 className="text-blue-400 font-bold text-sm uppercase leading-tight w-full">{g.label}</h3>
+2721-                      <div className="flex items-center gap-1 w-full justify-start bg-slate-900/50 p-1.5 rounded-lg border border-slate-700/50">
+2722:                        <button onClick={() => setMusicGroups(prev => { const arr = [...prev]; if (idx > 0) [arr[idx-1], arr[idx]] = [arr[idx], arr[idx-1]]; return arr; })} disabled={idx === 0} className="text-slate-500 hover:text-white disabled:opacity-30 p-1"><ChevronUp size={14}/></button>
+2723:                        <button onClick={() => setMusicGroups(prev => { const arr = [...prev]; if (idx < arr.length - 1) [arr[idx+1], arr[idx]] = [arr[idx], arr[idx+1]]; return arr; })} disabled={idx === musicGroups.length - 1} className="text-slate-500 hover:text-white disabled:opacity-30 p-1"><ChevronDown size={14}/></button>
+2724-                        <div className="h-4 w-[1px] bg-slate-700 mx-1" />
+2725-                        <button onClick={() => moveGroup(idx, 'music', 'event')} className="text-slate-500 hover:text-blue-400 p-1" title="Перемістити в Події"><Calendar size={12}/></button>
+--
+2778-                      <h3 className="text-blue-400 font-bold text-sm uppercase leading-tight w-full">{g.label}</h3>
+2779-                      <div className="flex items-center gap-1 w-full justify-start bg-slate-900/50 p-1.5 rounded-lg border border-slate-700/50">
+2780:                        <button onClick={() => setStaffGroups(prev => { const arr = [...prev]; if (idx > 0) [arr[idx-1], arr[idx]] = [arr[idx], arr[idx-1]]; return arr; })} disabled={idx === 0} className="text-slate-500 hover:text-white disabled:opacity-30 p-1"><ChevronUp size={14}/></button>
+2781:                        <button onClick={() => setStaffGroups(prev => { const arr = [...prev]; if (idx < arr.length - 1) [arr[idx+1], arr[idx]] = [arr[idx], arr[idx+1]]; return arr; })} disabled={idx === staffGroups.length - 1} className="text-slate-500 hover:text-white disabled:opacity-30 p-1"><ChevronDown size={14}/></button>
+2782-                        <div className="h-4 w-[1px] bg-slate-700 mx-1" />
+2783-                        <button onClick={() => moveGroup(idx, 'staff', 'event')} className="text-slate-500 hover:text-blue-400 p-1" title="Перемістити в Події"><Calendar size={12}/></button>
+--
+3498-                                      }}
+3499-                                      className={`p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors ${isAssignmentDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+3500:                                      disabled={isAssignmentDisabled}
+3501-                                    >
+3502-                                      <Pencil size={12}/>
+--
+3524-                                      }}
+3525-                                      className={`p-1 text-red-600 hover:bg-red-50 rounded transition-colors ${isAssignmentDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+3526:                                      disabled={isAssignmentDisabled}
+3527-                                    >
+3528-                                      <Trash2 size={12}/>
+--
+3574-                                onChange={(e) => updateLocalDetails(selectedDayForEvent, i, 'templateId', e.target.value)}
+3575-                                className={`bg-black/30 text-white text-[8px] font-bold rounded-md px-1.5 py-0.5 outline-none border border-white/5 hover:bg-black/40 transition-colors ${isPastor ? 'opacity-50 cursor-not-allowed' : ''}`}
+3576:                                disabled={isPastor}
+3577-                              >
+3578-                                {(appSettings.eventTemplates || []).map((t: any) => (
+--
+3624-                                  setEditingEventIndex(null);
+3625-                                }} 
+3626:                                disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}
+3627-                                className={`bg-red-500/80 text-white p-1 rounded-full shadow-md hover:bg-red-500 transition-all ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}
+3628-                              >
+--
+3640-                                         key={c} 
+3641-                                         onClick={() => updateLocalDetails(selectedDayForEvent, i, 'textColor', c)} 
+3642:                                         disabled={userRole === 'singer_manager' && activeTab !== 'templates'}
+3643-                                         className={`w-3 h-3 rounded-full transition-all ${ev.textColor?.toLowerCase() === c.toLowerCase() ? 'scale-125 ring-2 ring-offset-1 ring-blue-400' : 'hover:scale-110'} ${userRole === 'singer_manager' && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`} 
+3644-                                         style={{ backgroundColor: c }} 
+--
+3658-                                           key={a.id}
+3659-                                           onClick={() => updateLocalDetails(selectedDayForEvent, i, 'align', a.id)}
+3660:                                           disabled={userRole === 'singer_manager' && activeTab !== 'templates'}
+3661-                                           className={`p-1 rounded transition-colors ${ev.align === a.id ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`}
+3662-                                         >
+--
+3667-                                     <div className="w-px h-4 bg-black/10 mx-1" />
+3668-                                     <div className="flex gap-1 bg-black/10 p-0.5 rounded-lg">
+3669:                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isBold', ev.isBold === false ? true : false)} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`p-1 rounded transition-colors ${ev.isBold !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`}><Bold size={12} /></button>
+3670:                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isItalic', ev.isItalic === true ? false : true)} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`p-1 rounded transition-colors ${ev.isItalic === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`}><Italic size={12} /></button>
+3671:                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUnderline', ev.isUnderline === true ? false : true)} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`p-1 rounded transition-colors ${ev.isUnderline === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`}><Underline size={12} /></button>
+3672:                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUppercase', ev.isUppercase === false ? true : false)} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`p-1 rounded transition-colors ${ev.isUppercase !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`}><Type size={12} /></button>
+3673-                                     </div>
+3674-                                     <div className="w-px h-4 bg-black/10 mx-1" />
+--
+3676-                                       <button 
+3677-                                         onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isYearly', !ev.isYearly)} 
+3678:                                         disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} 
+3679-                                         className={`p-1 rounded transition-colors flex items-center gap-1 ${ev.isYearly ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`}
+3680-                                         title="Показувати в річному плані"
+--
+3693-                                <label className="text-[8px] font-black text-white uppercase ml-0.5">Подія</label>
+3694-                                <div className="flex items-center gap-1">
+3695:                                  <input type="checkbox" disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} checked={!!ev.hideTitleInYear} onChange={() => updateLocalDetails(selectedDayForEvent, i, 'hideTitleInYear', !ev.hideTitleInYear)} className={`accent-blue-500 mr-1 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`} title="Приховати в річному плані" />
+3696-                                  <CustomSelect 
+3697-                                    title="ПОДІЯ"
+--
+3703-                                    placeholder="..." 
+3704-                                    className="flex-1"
+3705:                                    disabled={(activeTab !== 'admin' && activeTab !== 'templates') || isAssignmentModalOpen || ((userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates')}
+3706-                                    allowAppend={true}
+3707-                                  />
+3708:                                  {ev.title && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'title', "")} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}><X size={14}/></button>}
+3709-                                </div>
+3710-                                <div className="flex items-center gap-1 mt-0.5" style={{ paddingLeft: '21px' }}>
+--
+3715-                                    placeholder="Опис / додаткові пункти події..." 
+3716-                                    className={`flex-1 bg-slate-100 border border-slate-300 rounded-lg px-2 py-1.5 text-slate-800 text-[9.5px] outline-none focus:border-blue-500 transition-colors font-normal placeholder-slate-400 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed bg-slate-200 pointer-events-none' : ''}`}
+3717:                                    disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}
+3718-                                  />
+3719:                                  {ev.subTitle && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'subTitle', "")} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}><X size={14}/></button>}
+3720-                                </div>
+3721-                             </div>
+--
+3724-                                  <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
+3725-                                  <div className="flex items-center gap-1">
+3726:                                    <input type="checkbox" disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} checked={!!ev.hidePlaceInYear} onChange={() => updateLocalDetails(selectedDayForEvent, i, 'hidePlaceInYear', !ev.hidePlaceInYear)} className={`accent-blue-500 mr-1 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`} title="Приховати в річному плані" />
+3727:                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onAddItem={(item) => handleAddValueToGroup(item, 0, 'location')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates') || isAssignmentModalOpen} allowAppend={true} />
+3728:                                    {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
+3729-                                  </div>
+3730-                               </div>
+--
+3734-                                  <label className="text-[8px] font-black text-white uppercase ml-0.5">Відділ</label>
+3735-                                  <div className="flex items-center gap-1">
+3736:                                    <CustomSelect title="ВІДДІЛ" value={ev.department} options={departments} onAddItem={(item) => handleAddValueToGroup(item, 0, 'department')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'department', v)} placeholder="..." className="flex-1" disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates') || isAssignmentModalOpen} allowAppend={true} />
+3737:                                    {ev.department && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'department', "")} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
+3738-                                  </div>
+3739-                               </div>
+--
+3745-                                    {currentTemplate.fields.includes('startTime') && (
+3746-                                      <div className="text-white flex-1 flex items-center gap-1">
+3747:                                        <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates') || isAssignmentModalOpen} />
+3748:                                        <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'startTime', "")} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors mt-2 ${!ev.startTime ? 'invisible' : ''} ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>
+3749-                                      </div>
+3750-                                    )}
+--
+3754-                                    {currentTemplate.fields.includes('endTime') && (
+3755-                                      <div className="text-white flex-1 flex items-center gap-1">
+3756:                                        <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates') || isAssignmentModalOpen} />
+3757:                                        {ev.endTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'endTime', "")} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors mt-2 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
+3758-                                      </div>
+3759-                                    )}
+--
+3769-                                   <div className='flex items-center gap-2'>
+3770-                                     <label className="text-[8px] font-black text-white uppercase ml-0.5">Служителі (Хто)</label>
+3771:                                     <input type="checkbox" disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} checked={!!ev.hideLeadsInYear} onChange={() => updateLocalDetails(selectedDayForEvent, i, 'hideLeadsInYear', !ev.hideLeadsInYear)} className={`accent-blue-500 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`} title="Приховати в річному плані" />
+3772-                                   </div>
+3773-                                   <div className="flex flex-col gap-2">
+--
+3782-                                              }
+3783-                                              updateLocalDetails(selectedDayForEvent, i, 'leads', nL); 
+3784:                                            }} placeholder="Хто..." className="flex-1" disabled={(activeTab !== 'admin' && activeTab !== 'templates') || isAssignmentModalOpen || ((userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates')} allowAppend={true} onAssignPreachers={() => {
+3785-                                            setPendingAssignmentCallback(() => (val: string) => {
+3786-                                              const nL = [...ev.leads];
+--
+3790-                                            setIsAssignmentModalOpen(true);
+3791-                                          }} />
+3792:                                          {l && <button onClick={() => { const nL = [...ev.leads]; nL[lIdx] = ""; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}><X size={14}/></button>}
+3793:                                          {ev.leads.length > 1 && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', ev.leads.filter((_, idx) => idx !== lIdx))} className={`text-red-200 p-0.5 hover:text-white ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}><X size={14}/></button>}
+3794-                                       </div>
+3795-                                     ))}
+3796:                                     <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', [...(ev.leads || []), ""])} className={`text-[9px] text-white/80 font-black hover:text-white ml-0.5 tracking-wide flex items-center gap-1 h-6 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`} disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}><Plus size={10}/> Додати</button>
+3797-                                   </div>
+3798-                                </div>
+--
+3803-                                   <div className='flex items-center gap-2'>
+3804-                                     <label className="text-[8px] font-black text-white uppercase ml-0.5">Музика</label>
+3805:                                     <input type="checkbox" disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} checked={!!ev.hideMusicInYear} onChange={() => updateLocalDetails(selectedDayForEvent, i, 'hideMusicInYear', !ev.hideMusicInYear)} className={`accent-blue-500 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`} title="Приховати в річному плані" />
+3806-                                   </div>
+3807-                                   <div className="flex items-center gap-1">
+3808:                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? musicGroups.filter(g => g.label.toUpperCase() === 'МУЗ. ГРУПИ' || g.label.toUpperCase() === 'ХОРИ') : musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onAddItem={(item, idx, groupLabel) => handleAddValueToGroup(item, idx, 'music', groupLabel)} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={(activeTab !== 'admin' && activeTab !== 'templates') || isAssignmentModalOpen} allowAppend={true} />
+3809-                                     {ev.music && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'music', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
+3810-                                   </div>
+--
+3832-              <button 
+3833-                onClick={() => addEventToDay(selectedDayForEvent)} 
+3834:                disabled={(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}
+3835-                className={`w-full border-2 border-dashed border-slate-600 py-3 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 tracking-wider text-slate-400 hover:bg-slate-700/50 hover:text-white hover:border-slate-500 ${(userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}
+3836-              >
+--
+4185-                   }}
+4186-                   className="flex-1 px-3 py-2 bg-[#7064d4] text-white font-bold rounded-xl text-[10px] sm:text-xs uppercase tracking-widest hover:bg-[#5b4fbf] transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
+4187:                   disabled={!reminderModalData.time}
+4188-                   title="Автоматично надіслати чи запланувати через бота"
+4189-                 >
+--
+4204-                 }}
+4205-                 className="flex-1 px-3 py-2 bg-[#0088cc] text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-[#0077b3] transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
+4206:                 disabled={!reminderModalData.time}
+4207-                 title="Надіслати в Telegram"
+4208-               >
+--
+4279-                 }}
+4280-                 className="flex-1 px-3 py-2 bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-blue-500 transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
+4281:                 disabled={!reminderModalData.time}
+4282-                 title="Додати в Google Календар"
+4283-               >
