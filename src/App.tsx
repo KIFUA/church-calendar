@@ -2858,7 +2858,7 @@ export default function App() {
 
         {(activeTab === 'view' || activeTab === 'admin') && (
           <div className={showPreacherTable ? "flex-1 flex flex-row gap-4 p-4 items-stretch h-[calc(100vh-7.5rem)] overflow-hidden" : "flex flex-col gap-4"}>
-            <div className={showPreacherTable ? "w-[16.25rem] shrink-0 relative overflow-hidden hidden md:block 2xl:w-[17.5rem] 2xl:flex 2xl:flex-col 2xl:static 2xl:overflow-y-auto 2xl:pr-2 2xl:custom-scrollbar" : "flex flex-col gap-4 w-full xl:max-w-[75rem] xl:mx-auto"}>
+            <div className={showPreacherTable ? "w-[16.25rem] shrink-0 relative overflow-hidden hidden md:block 2xl:w-[17.5rem] 2xl:flex 2xl:flex-col 2xl:static 2xl:overflow-y-auto 2xl:pr-2 2xl:custom-scrollbar" : "flex flex-col gap-4 w-full xl:max-w-[90rem] 2xl:max-w-[110rem] xl:mx-auto"}>
               <div className={showPreacherTable ? "absolute top-0 left-0 w-[200%] h-[200%] scale-50 origin-top-left overflow-y-auto pr-2 custom-scrollbar 2xl:relative 2xl:w-full 2xl:h-auto 2xl:scale-100" : "flex flex-col gap-4"}>
               
               {/* Банер Текст Місяця */}
