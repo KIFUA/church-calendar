@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import 'church-slavonic-fonts/css/fonts.css';
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -2120,7 +2121,7 @@ export default function App() {
                   fontStyle: 'normal',
                   textTransform: currentThemeStyle.transform || 'uppercase',
                   textShadow: '0 1px 1px rgba(255,255,255,0.4)',
-                  fontFamily: '"Ruslan Display", "Kurale", "Alice", "Cormorant Garamond", serif',
+                  fontFamily: '"Ponomar Unicode", "Fedorovsk Unicode", "Ruslan Display", "Kurale", "Alice", serif',
                 }}
               >
                 {currentThemeText.trim()}
@@ -3441,7 +3442,7 @@ export default function App() {
                   textTransform: themeTransform,
                   fontSize: `${themeFontSizeLocal}px`,
                   color: themeColor,
-                  fontFamily: '"Ruslan Display", "Kurale", "Alice", "Cormorant Garamond", serif'
+                  fontFamily: '"Ponomar Unicode", "Fedorovsk Unicode", "Ruslan Display", "Kurale", "Alice", serif'
                 }}
                 className="w-full h-48 bg-white border border-slate-300 rounded-2xl p-4 text-sm md:text-base outline-none focus:border-red-500/50 transition-colors resize-none shadow-inner font-serif"
               />

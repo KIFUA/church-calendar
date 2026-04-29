@@ -13,13 +13,16 @@
   @media (min-width: 1024px) {
     html {
       /* Dynamic root font scaling to counteract browser zoom.
-         Locks standard density to approx 67.5% visual scale on desktop. 
-         Using a fixed px size (10.8px instead of 16px) allows browser zooming 
-         to work normally, while defaulting to the dense layout. */
-      font-size: 10.8px;
+         This utilizes vw to remain physically stable on the monitor. 
+         No max-clamp allows the CSS px to grow proportionally when zooming out, 
+         completely preventing the 'narrow column' effect. */
+      font-size: max(9px, 0.55vw);
     }
   }
 }
+
+
+
 
 @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Kurale&family=Alice&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 @import "tailwindcss";
