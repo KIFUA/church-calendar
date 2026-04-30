@@ -2866,8 +2866,8 @@ export default function App() {
 
           <div className={`
             calendar-container-scaling
-            ${viewMode === 'month' ? (showPreacherTable ? 'flex flex-col gap-3 lg:gap-2' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-1.5 print:grid-cols-1 print:gap-0') : ''}
-            ${viewMode === 'week' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-1.5 w-full' : ''}
+            ${viewMode === 'month' ? (showPreacherTable ? 'flex flex-col gap-3 lg:gap-2' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-1.5 w-full print:grid-cols-1 print:gap-0 /* ЦЕЙ РЯДОК НІКОЛИ НЕ ЗМІНЮВАТИ - НАЛАШТУВАННЯ СІТКИ МІСЯЦЬ ЯК ТИЖДЕНЬ */') : ''}
+            ${viewMode === 'week' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-1.5 w-full /* ЦЕЙ РЯДОК НІКОЛИ НЕ ЗМІНЮВАТИ - НАЛАШТУВАННЯ СІТКИ ТИЖДЕНЬ */' : ''}
             ${viewMode === 'day' ? `flex flex-col [@media(orientation:landscape)]:flex-row md:flex-row items-start justify-center gap-6 lg:gap-8 w-full ${showPreacherTable ? '' : 'mx-auto max-w-[59.375rem]'}` : ''}
             ${viewMode === 'year' ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 print:grid-cols-1 print:gap-0' : ''}
           `}>
@@ -3092,7 +3092,7 @@ export default function App() {
                       setSelectedDayForEvent(d.dateKey);
                     }
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[0.25rem]' : 'border-l-[0.375rem]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[5rem]' : 'min-h-[6.25rem] lg:min-h-[8.125rem]'} ${showPreacherTable ? 'rounded-2xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${viewMode === 'week' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto' : ''} ${viewMode === 'month' && !showPreacherTable ? 'max-w-[37.5rem] mx-auto' : ''} ${showPreacherTable || viewMode === 'year' ? 'max-w-full' : ''} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} ${viewMode === 'day' ? 'flex-1 w-full max-w-[37.5rem]' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[0.25rem]' : 'border-l-[0.375rem]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[5rem]' : 'min-h-[6.25rem] lg:min-h-[8.125rem]'} ${showPreacherTable ? 'rounded-2xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${viewMode === 'week' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ ТИЖНЯ */' : ''} ${viewMode === 'month' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ МІСЯЦЯ (ТАКІ САМІ ЯК ДЛЯ ТИЖНЯ) */' : ''} ${showPreacherTable || viewMode === 'year' ? 'max-w-full' : ''} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} ${viewMode === 'day' ? 'flex-1 w-full max-w-[37.5rem]' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
