@@ -961,6 +961,13 @@ const formatLeadDisplay = (lead: string) => {
   );
 };
 
+const isEventArchived = (dateKey: string | null) => {
+  if (!dateKey || dateKey.startsWith('template_')) return false;
+  const t = new Date();
+  const currentMonthKey = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`;
+  return dateKey.substring(0, 7) < currentMonthKey;
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('view');
@@ -973,9 +980,9 @@ export default function App() {
     logo: null,
     themeBackground: 'none',
     themeFontSize: 16,
-    backgroundColor: '#0a1120',
+    backgroundColor: '#1e293b',
     titleColor: '#ffffff',
-    subtitleColor: '#3b82f6',
+    subtitleColor: '#94a3b8',
     logoColor: '#ffffff',
     eventTemplates: [
       { id: 'full', name: 'Повний набір', fields: ['startTime', 'endTime', 'place', 'leads', 'music', 'formatting', 'colors'] },
@@ -991,6 +998,8 @@ export default function App() {
   const [themeWeight, setThemeWeight] = useState<'400'|'500'|'600'|'700'>('500');
   const [themeColor, setThemeColor] = useState<string>('#5c3a21');
   const [themeFontSizeLocal, setThemeFontSizeLocal] = useState<number>(13);
+  const [statsStartMonth, setStatsStartMonth] = useState("");
+  const [statsEndMonth, setStatsEndMonth] = useState("");
   const [themeTransform, setThemeTransform] = useState<'uppercase'|'none'>('uppercase');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<'admin' | 'preacher_manager' | 'singer_manager' | null>(null);
@@ -1000,6 +1009,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month' | 'year'>('day');
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [openNestedSubmenu, setOpenNestedSubmenu] = useState<string | null>(null);
   const [activeEditingMode, setActiveEditingMode] = useState<'full' | 'preacher' | 'music'>('full');
   const [passwordPrompt, setPasswordPrompt] = useState<{ isOpen: boolean, action: string | null, error?: string | null }>({ isOpen: false, action: null });
   const [selectedDayForEvent, setSelectedDayForEvent] = useState(null);
@@ -2226,9 +2236,9 @@ export default function App() {
                        fill="white" 
                      />
                      {/* Arched Doorway */}
-                     <path d="M44 97 A6 6 0 0 1 56 97 L56 97 L44 97 Z" fill="#0a1120" />
+                     <path d="M44 97 A6 6 0 0 1 56 97 L56 97 L44 97 Z" fill="#1e293b" />
                      {/* Round Window */}
-                     <circle cx="50" cy="78" r="4.5" fill="#0a1120" />
+                     <circle cx="50" cy="78" r="4.5" fill="#1e293b" />
                      {/* Cross */}
                      <path d="M50 12 L50 24 M46 16 L54 16" stroke={appSettings.logoColor} strokeWidth="2" strokeLinecap="round" />
                    </svg>
@@ -2303,21 +2313,42 @@ export default function App() {
                     ДОДАТИ/ЗМІНИТИ ПОДІЮ
                   </button>
                   <button 
-                    onClick={() => handleActionClick('preacher')}
-                    className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-300 hover:bg-slate-700 rounded"
-                  >
-                    ПРИЗНАЧИТИ ПРОПОВІДНИКІВ
-                  </button>
-                  <button 
                     onClick={() => handleActionClick('music')}
                     className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-300 hover:bg-slate-700 rounded"
                   >
                     ПРИЗНАЧИТИ ЛЕВИТІВ
                   </button>
+                  <div 
+                    className="px-6 py-1 text-[0.6875rem] text-slate-300 cursor-pointer hover:bg-slate-700 rounded flex justify-between items-center w-full"
+                    onClick={() => setOpenNestedSubmenu(prev => prev === 'preachers_menu' ? null : 'preachers_menu')}
+                  >
+                    ПРИЗНАЧЕННЯ ПРОПОВІДНИКІВ
+                    <span>{openNestedSubmenu === 'preachers_menu' ? '▲' : '▼'}</span>
+                  </div>
+                  {openNestedSubmenu === 'preachers_menu' && (
+                    <div className="pl-4 flex flex-col w-full">
+                      <button 
+                        onClick={() => handleActionClick('preacher')}
+                        className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-400 hover:bg-slate-700 rounded"
+                      >
+                        ПРИЗНАЧИТИ ПРОПОВІДНИКІВ
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setActiveTab('statistics');
+                          setIsHamburgerOpen(false);
+                          setOpenSubmenu(null);
+                        }}
+                        className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-400 hover:bg-slate-700 rounded"
+                      >
+                        ЗАЛУЧЕННЯ ПРОПОВІДНИКІВ
+                      </button>
+                    </div>
+                  )}
                   {isAdminAuthenticated && (
                     <button 
                       onClick={handleLogout}
-                      className="text-left w-full px-6 py-1 text-[0.6875rem] text-red-400 hover:bg-slate-700 rounded"
+                      className="text-left w-full px-6 py-1 text-[0.6875rem] text-red-400 hover:bg-slate-700 rounded mt-1"
                     >
                       ЗАВЕРШИТИ РЕДАГУВАННЯ
                     </button>
@@ -2601,6 +2632,236 @@ export default function App() {
                   );
                 })}
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'statistics' && (
+          <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none">
+            <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-white print:border-none print:p-0 print:shadow-none">
+               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 print:hidden gap-4">
+                 <h2 className="text-slate-800 text-lg font-black uppercase tracking-wider">Архів: Залучення проповідників</h2>
+                 <div className="flex flex-wrap items-center gap-3">
+                   <div className="flex items-center gap-2 bg-slate-300/50 p-1.5 rounded-lg border border-slate-300 shadow-inner">
+                     <span className="text-xs font-bold text-slate-500 uppercase px-1">Від:</span>
+                     <input 
+                       type="month" 
+                       value={statsStartMonth} 
+                       onChange={e => setStatsStartMonth(e.target.value)}
+                       className="bg-white border border-slate-300 text-slate-700 text-xs font-medium rounded px-2 py-1 outline-none focus:border-blue-500 shadow-sm"
+                     />
+                     <span className="text-xs font-bold text-slate-500 uppercase px-1">До:</span>
+                     <input 
+                       type="month" 
+                       value={statsEndMonth} 
+                       onChange={e => setStatsEndMonth(e.target.value)}
+                       className="bg-white border border-slate-300 text-slate-700 text-xs font-medium rounded px-2 py-1 outline-none focus:border-blue-500 shadow-sm"
+                     />
+                     {(statsStartMonth || statsEndMonth) && (
+                       <button 
+                         onClick={() => { setStatsStartMonth(""); setStatsEndMonth(""); }}
+                         className="text-slate-500 hover:text-red-600 px-1 hover:bg-slate-200 rounded p-0.5 transition-colors"
+                         title="Очистити період"
+                       >
+                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                       </button>
+                     )}
+                   </div>
+                   <button onClick={() => window.print()} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-[0.625rem] font-bold shadow hover:bg-blue-500 uppercase flex items-center gap-2"><span>PDF / Друк</span></button>
+                 </div>
+               </div>
+               
+               <div className="hidden print:block mb-4">
+                 <h2 className="text-black text-xl font-black uppercase text-center">Архів: Залучення проповідників</h2>
+               </div>
+ 
+               <div className="overflow-x-auto print:overflow-visible custom-scrollbar border border-slate-400 print:border-none shadow-sm print:shadow-none rounded-lg bg-white">
+                 <table className="w-[max-content] print:w-full text-left text-[0.6875rem] text-slate-700 print:text-black border-collapse">
+                   <thead className="bg-slate-300 print:bg-gray-50 text-slate-800">
+                     {(() => {
+                         const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+                         const archiveYearsSet = new Set<string>();
+                         events.forEach(dayInfo => {
+                           if (!dayInfo || !dayInfo.id || dayInfo.id.length < 7 || dayInfo.id.startsWith('template')) return;
+                           const mKey = dayInfo.id.substring(0, 7);
+                           if (statsStartMonth && mKey < statsStartMonth) return;
+                           if (statsEndMonth && mKey > statsEndMonth) return;
+                           if (mKey < currentMonthKey) {
+                             archiveYearsSet.add(mKey.split('-')[0]);
+                           }
+                         });
+                         if (archiveYearsSet.size === 0) archiveYearsSet.add(today.getFullYear().toString());
+                         const archiveYears = Array.from(archiveYearsSet).sort();
+                         const ALL_MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+                         const activeMonthsByYear: any = {};
+                         archiveYears.forEach(year => {
+                           activeMonthsByYear[year] = ALL_MONTHS.filter(mo => {
+                             const mKey = year + '-' + mo;
+                             if (statsStartMonth && mKey < statsStartMonth) return false;
+                             if (statsEndMonth && mKey > statsEndMonth) return false;
+                             if (mKey >= currentMonthKey) return false;
+                             return true;
+                           });
+                         });
+                         const filteredArchiveYears = archiveYears.filter(year => activeMonthsByYear[year].length > 0);
+                          const getMonthName = (mo: any) => {
+                            const d = new Date(2000, parseInt(mo) - 1, 1);
+                            return d.toLocaleDateString('uk-UA', { month: 'short' }).replace('.', '');
+                          };
+                          return (
+                            <>
+                              <tr className="border-b border-slate-700 print:border-black">
+                                <th rowSpan={2} className="p-2.5 font-bold uppercase whitespace-nowrap sticky left-0 bg-slate-800 print:bg-gray-50 z-10 border-r border-slate-700 print:border-black text-[0.625rem] align-bottom text-center w-auto text-slate-400">Проповідник</th>
+                                {filteredArchiveYears.length > 0 ? filteredArchiveYears.map(year => (
+                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="p-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-700 print:border-black bg-slate-800 print:bg-white text-slate-300">
+                                    {year}
+                                  </th>
+                                )) : (
+                                  <th className="p-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-700 print:border-black bg-slate-800 print:bg-white text-slate-300">
+                                    -
+                                  </th>
+                                )}
+                              </tr>
+                              <tr className="border-b border-slate-700 print:border-black bg-slate-800 print:bg-white">
+                                {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
+                                  const cols = activeMonthsByYear[year].map(mo => (
+                                    <th key={year + '-' + mo} className="p-1 align-middle border-r border-slate-700 print:border-black w-6">
+                                      <div className="flex justify-center h-16">
+                                        <span className="font-semibold text-[0.5625rem] uppercase tracking-wider text-slate-400" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+                                          {getMonthName(mo)}
+                                        </span>
+                                      </div>
+                                    </th>
+                                  ));
+                                  cols.push(
+                                    <th key={'total-' + year} className="p-1 font-bold text-center text-slate-300 print:text-black uppercase text-[0.625rem] align-bottom border-r border-slate-700 print:border-black last:border-r-0 w-8 bg-slate-900 print:bg-gray-100">
+                                      <div className="flex justify-center items-end h-16 pb-2">
+                                        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Разом</span>
+                                      </div>
+                                    </th>
+                                  );
+                                  return cols;
+                                }) : (
+                                  <th className="p-1 font-bold text-center text-[0.625rem] border-r border-slate-200 print:border-black w-8">
+                                    -
+                                  </th>
+                               )}
+                             </tr>
+                           </>
+                         );
+                     })()}
+                   </thead>
+
+                   <tbody>
+                     {(() => {
+                         const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+                         const archiveYearsSet = new Set<string>();
+                         const stats: Record<string, Record<string, number>> = {};
+                         
+                         const preachersOnly = staffGroups
+                           .filter((g: any) => g.label === "НА ВСІ ДНІ" || g.label.includes("БУДНІ"))
+                           .map((g: any) => ({
+                             ...g,
+                             items: [...g.items].sort((a: any, b: any) => a.localeCompare(b))
+                           }));
+
+                         const preachersList = Array.from(new Set(
+                           preachersOnly.flatMap((g: any) => g.items)
+                         ));
+                         
+                         events.forEach(dayInfo => {
+                           if (!dayInfo || !dayInfo.id || dayInfo.id.length < 7 || dayInfo.id.startsWith('template')) return;
+                           const mKey = dayInfo.id.substring(0, 7);
+                           if (statsStartMonth && mKey < statsStartMonth) return;
+                           if (statsEndMonth && mKey > statsEndMonth) return;
+                           if (mKey < currentMonthKey) {
+                             archiveYearsSet.add(mKey.split('-')[0]);
+                             dayInfo.events?.forEach((ev: any) => {
+                               if (ev.title?.toUpperCase().includes('ПРИБИРАННЯ')) return;
+                               ev.leads?.forEach((lead: string) => {
+                                 if (lead && preachersList.includes(lead)) {
+                                   if (!stats[lead]) stats[lead] = {};
+                                   stats[lead][mKey] = (stats[lead][mKey] || 0) + 1;
+                                 }
+                               });
+                             });
+                           }
+                         });
+                         
+                         if (archiveYearsSet.size === 0) archiveYearsSet.add(today.getFullYear().toString());
+                         const archiveYears = Array.from(archiveYearsSet).sort();
+                         const ALL_MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+                         
+                         const activeMonthsByYear: Record<string, string[]> = {};
+                         archiveYears.forEach(year => {
+                           activeMonthsByYear[year] = ALL_MONTHS.filter(mo => {
+                             const mKey = `${year}-${mo}`;
+                             if (statsStartMonth && mKey < statsStartMonth) return false;
+                             if (statsEndMonth && mKey > statsEndMonth) return false;
+                             if (mKey >= currentMonthKey) return false;
+                             return true;
+                           });
+                         });
+                         const filteredArchiveYears = archiveYears.filter(year => activeMonthsByYear[year].length > 0);
+
+                         if (preachersOnly.length === 0 || preachersList.length === 0) {
+                           return (
+                             <tr>
+                               <td colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 1) : 2} className="p-4 text-center text-slate-500 italic border-t border-slate-300 print:border-black">Список проповідників порожній.</td>
+                             </tr>
+                           );
+                         }
+
+                         return preachersOnly.map((group: any) => (
+                           <React.Fragment key={group.label}>
+                             <tr>
+                               <td 
+                                 colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 1) : 2} 
+                                 className="bg-slate-300 print:bg-gray-200 font-bold p-2 border-b border-t border-slate-400 print:border-black text-black z-[20] shadow-sm text-[0.6875rem] sticky left-0"
+                               >
+                                 {group.label}
+                               </td>
+                             </tr>
+                             {group.items.map((preacher: string, idx: number) => {
+                               const pStats = stats[preacher] || {};
+                               const isEven = idx % 2 === 0;
+                               const rowBgClass = isEven ? 'bg-slate-50 print:bg-gray-50' : 'bg-white print:bg-white';
+                               
+                               return (
+                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass}`}>
+                                    <td className={`p-2.5 font-medium whitespace-nowrap sticky left-0 z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 ${rowBgClass}`}>{preacher}</td>
+                                    {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
+                                      let yearTotal = 0;
+                                      const cols = activeMonthsByYear[year].map(mo => {
+                                        const mKey = `${year}-${mo}`;
+                                        const count = pStats[mKey] || 0;
+                                        yearTotal += count;
+                                        return (
+                                          <td key={mKey} className="p-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black w-6">
+                                            {count > 0 ? count : <span className="opacity-20">-</span>}
+                                          </td>
+                                        );
+                                      });
+                                      cols.push(
+                                        <td key={`total-${year}`} className="p-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-transparent border-r last:border-r-0 border-slate-300 print:border-black w-8">
+                                          {yearTotal > 0 ? yearTotal : <span className="opacity-20">-</span>}
+                                        </td>
+                                      );
+                                      return cols;
+                                    }) : (
+                                       <td className="p-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black w-8">
+                                         -
+                                       </td>
+                                    )}
+                                 </tr>
+                               );
+                             })}
+                           </React.Fragment>
+                         ));
+                     })()}
+                   </tbody>
+                 </table>
+               </div>
             </div>
           </div>
         )}
@@ -3092,7 +3353,7 @@ export default function App() {
                       setSelectedDayForEvent(d.dateKey);
                     }
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[0.25rem]' : 'border-l-[0.375rem]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[5rem]' : 'min-h-[6.25rem] lg:min-h-[8.125rem]'} ${showPreacherTable ? 'rounded-2xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${viewMode === 'week' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ ТИЖНЯ */' : ''} ${viewMode === 'month' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ МІСЯЦЯ (ТАКІ САМІ ЯК ДЛЯ ТИЖНЯ) */' : ''} ${showPreacherTable || viewMode === 'year' ? 'max-w-full' : ''} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} ${viewMode === 'day' ? 'flex-1 w-full max-w-[37.5rem]' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[0.25rem]' : 'border-l-[0.375rem]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[5rem]' : 'min-h-[6.25rem] lg:min-h-[8.125rem]'} ${showPreacherTable ? 'rounded-2xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${viewMode === 'week' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ ТИЖНЯ */' : ''} ${viewMode === 'month' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ МІСЯЦЯ (ТАКІ САМІ ЯК ДЛЯ ТИЖНЯ) */' : ''} ${showPreacherTable || viewMode === 'year' ? 'max-w-full' : ''} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#1e293b]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} ${viewMode === 'day' ? 'flex-1 w-full max-w-[37.5rem]' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
@@ -3661,8 +3922,8 @@ export default function App() {
                                   }
                                   setEditingEventIndex(null);
                                 }} 
-                                disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}
-                                className={`bg-red-500/80 text-white p-1 rounded-full shadow-md hover:bg-red-500 transition-all ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}
+                                disabled={((userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))}
+                                className={`bg-red-500/80 text-white p-1 rounded-full shadow-md hover:bg-red-500 transition-all ${((userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent)) ? 'opacity-0 pointer-events-none' : ''}`}
                               >
                                 <Trash2 size={9}/>
                               </button>
@@ -3740,7 +4001,7 @@ export default function App() {
                                     onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'title', v)} 
                                     placeholder="..." 
                                     className="flex-1"
-                                    disabled={(isAdminAuthenticated && (userRole === "singer_manager" || userRole === "preacher_manager" || activeEditingMode === "music") && activeTab !== "templates") || (activeTab !== "admin" && activeTab !== "templates" && userRole !== "admin") || isAssignmentModalOpen}
+                                    disabled={(isAdminAuthenticated && (userRole === "singer_manager" || userRole === "preacher_manager" || activeEditingMode === "music") && activeTab !== "templates") || (activeTab !== "admin" && activeTab !== "templates" && userRole !== "admin") || isAssignmentModalOpen || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))}
                                     allowAppend={true}
                                   />
                                   {ev.title && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'title', "")} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`} disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}><X size={14}/></button>}
@@ -3762,7 +4023,7 @@ export default function App() {
                                   <label className="text-[0.5rem] font-black text-white uppercase ml-0.5">Місце</label>
                                   <div className="flex items-center gap-1">
                                     <input type="checkbox" disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} checked={!!ev.hidePlaceInYear} onChange={() => updateLocalDetails(selectedDayForEvent, i, 'hidePlaceInYear', !ev.hidePlaceInYear)} className={`accent-blue-500 mr-1 ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`} title="Приховати в річному плані" />
-                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onAddItem={(item) => handleAddValueToGroup(item, 0, 'location')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen} allowAppend={true} />
+                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onAddItem={(item) => handleAddValueToGroup(item, 0, 'location')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))} allowAppend={true} />
                                     {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                   </div>
                                </div>
@@ -3771,7 +4032,7 @@ export default function App() {
                                <div className="space-y-0.5">
                                   <label className="text-[0.5rem] font-black text-white uppercase ml-0.5">Відділ</label>
                                   <div className="flex items-center gap-1">
-                                    <CustomSelect title="ВІДДІЛ" value={ev.department} options={departments} onAddItem={(item) => handleAddValueToGroup(item, 0, 'department')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'department', v)} placeholder="..." className="flex-1" disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen} allowAppend={true} />
+                                    <CustomSelect title="ВІДДІЛ" value={ev.department} options={departments} onAddItem={(item) => handleAddValueToGroup(item, 0, 'department')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'department', v)} placeholder="..." className="flex-1" disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))} allowAppend={true} />
                                     {ev.department && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'department', "")} disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                   </div>
                                </div>
@@ -3782,7 +4043,7 @@ export default function App() {
                                   <div className="flex gap-2 w-full items-center">
                                     {currentTemplate.fields.includes('startTime') && (
                                       <div className="text-white flex-1 flex items-center gap-1">
-                                        <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen} />
+                                        <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))} />
                                         <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'startTime', "")} disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors mt-2 ${!ev.startTime ? 'invisible' : ''} ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>
                                       </div>
                                     )}
@@ -3791,7 +4052,7 @@ export default function App() {
                                     )}
                                     {currentTemplate.fields.includes('endTime') && (
                                       <div className="text-white flex-1 flex items-center gap-1">
-                                        <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen} />
+                                        <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={(isAdminAuthenticated && (userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'admin') || isAssignmentModalOpen || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))} />
                                         {ev.endTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'endTime', "")} disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} className={`text-white/50 hover:text-white transition-colors mt-2 ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
                                       </div>
                                     )}
@@ -3819,7 +4080,7 @@ export default function App() {
                                                 nL[lIdx] = v;
                                               }
                                               updateLocalDetails(selectedDayForEvent, i, 'leads', nL); 
-                                            }} placeholder="Хто..." className="flex-1" disabled={(activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'preacher_manager' && userRole !== 'admin' && userRole !== 'singer_manager') || isAssignmentModalOpen || ((userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates')} allowAppend={true} onAssignPreachers={() => {
+                                            }} placeholder="Хто..." className="flex-1" disabled={(activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'preacher_manager' && userRole !== 'admin' && userRole !== 'singer_manager') || isAssignmentModalOpen || ((userRole === 'singer_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))} allowAppend={true} onAssignPreachers={() => {
                                             setPendingAssignmentCallback(() => (val: string) => {
                                               const nL = [...ev.leads];
                                               nL[lIdx] = val;
@@ -3843,7 +4104,7 @@ export default function App() {
                                      <input type="checkbox" disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'} checked={!!ev.hideMusicInYear} onChange={() => updateLocalDetails(selectedDayForEvent, i, 'hideMusicInYear', !ev.hideMusicInYear)} className={`accent-blue-500 ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-50 cursor-not-allowed' : ''}`} title="Приховати в річному плані" />
                                    </div>
                                    <div className="flex items-center gap-1">
-                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? musicGroups.filter(g => g.label.toUpperCase() === 'МУЗ. ГРУПИ' || g.label.toUpperCase() === 'ХОРИ') : musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onAddItem={(item, idx, groupLabel) => handleAddValueToGroup(item, idx, 'music', groupLabel)} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={(activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'preacher_manager' && userRole !== 'admin' && userRole !== 'singer_manager') || isAssignmentModalOpen || ((userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates')} allowAppend={true} />
+                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? musicGroups.filter(g => g.label.toUpperCase() === 'МУЗ. ГРУПИ' || g.label.toUpperCase() === 'ХОРИ') : musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onAddItem={(item, idx, groupLabel) => handleAddValueToGroup(item, idx, 'music', groupLabel)} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={(activeTab !== 'admin' && activeTab !== 'templates' && userRole !== 'preacher_manager' && userRole !== 'admin' && userRole !== 'singer_manager') || isAssignmentModalOpen || ((userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates') || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))} allowAppend={true} />
                                      {ev.music && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'music', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
                                    </div>
                                 </div>
@@ -3869,7 +4130,7 @@ export default function App() {
               
               <button 
                 onClick={() => addEventToDay(selectedDayForEvent)} 
-                disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates'}
+                disabled={(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' || (activeTab !== 'templates' && isEventArchived(selectedDayForEvent))}
                 className={`w-full border-2 border-dashed border-slate-600 py-3 rounded-xl text-[0.625rem] font-black uppercase transition-all flex items-center justify-center gap-2 tracking-wider text-slate-400 hover:bg-slate-700/50 hover:text-white hover:border-slate-500 ${(userRole === 'singer_manager' || userRole === 'preacher_manager' || activeEditingMode === 'music') && activeTab !== 'templates' ? 'opacity-0 pointer-events-none' : ''}`}
               >
                 <Plus size={14}/> ДОДАТИ ПОДІЮ
