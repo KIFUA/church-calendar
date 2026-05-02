@@ -2157,7 +2157,21 @@ export default function App() {
   };
 
   return (
-    <div className={`h-screen overflow-hidden text-slate-200 p-4 font-sans text-[0.625rem] flex flex-col print:h-auto print:overflow-visible print:bg-white print:p-0 ${isAssignmentModalOpen ? 'print:hidden' : ''}`} style={{ backgroundColor: appSettings.backgroundColor }}>
+    <div className={`h-screen overflow-hidden text-slate-200 p-4 font-sans text-[0.625rem] flex flex-col print:h-auto print:overflow-visible print:!bg-white print:!p-0 ${isAssignmentModalOpen ? 'print:hidden' : ''}`} style={{ backgroundColor: appSettings.backgroundColor }}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          body, #root, div[style*="background-color"] { 
+            background-color: white !important; 
+            background-image: none !important;
+            background: white !important;
+          }
+          * { 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+          }
+          .sticky { position: static !important; }
+        }
+      ` }} />
       {showDiagnostics && (
         <div className="fixed inset-0 z-[3000] bg-black/90 backdrop-blur-md p-6 flex items-center justify-center" onClick={() => setShowDiagnostics(false)}>
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-[2rem] max-w-md w-full" onClick={e => e.stopPropagation()}>
@@ -2637,8 +2651,8 @@ export default function App() {
         )}
 
         {activeTab === 'statistics' && (
-          <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none print:w-full print:p-0">
-            <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-white print:border-none print:p-0 print:shadow-none print:w-full">
+          <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none print:w-full print:p-0 print:m-0 print:block">
+            <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-white print:border-none print:p-0 print:shadow-none print:w-full print:block">
                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 print:hidden gap-4">
                  <h2 className="text-slate-800 text-lg font-black uppercase tracking-wider">Архів: Залучення проповідників</h2>
                  <div className="flex flex-wrap items-center gap-3">
@@ -2713,11 +2727,11 @@ export default function App() {
                               <tr className="border-b border-slate-700 print:border-black print:bg-white">
                                 <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-slate-200 print:bg-white z-10 border-r border-slate-300 print:border-black text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.map(year => (
-                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-white text-slate-700">
+                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-white text-slate-700 print:text-black">
                                     {year}
                                   </th>
                                 )) : (
-                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-white text-slate-700">
+                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-white text-slate-700 print:text-black">
                                     -
                                   </th>
                                 )}
@@ -2828,8 +2842,8 @@ export default function App() {
                                const rowBgClass = isEven ? 'bg-slate-50 print:bg-gray-50' : 'bg-white print:bg-white';
                                
                                return (
-                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass} print:bg-white`}>
-                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 print:relative z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 print:text-black ${rowBgClass} print:bg-white`}>{preacher}</td>
+                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass} print:bg-white print:text-black`}>
+                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 print:static z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 print:text-black ${rowBgClass} print:bg-white`}>{preacher}</td>
                                     {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
                                       let yearTotal = 0;
                                       const cols = activeMonthsByYear[year].map(mo => {
@@ -2837,14 +2851,14 @@ export default function App() {
                                         const count = pStats[mKey] || 0;
                                         yearTotal += count;
                                         return (
-                                          <td key={mKey} className="py-0.5 px-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black w-6">
-                                            {count > 0 ? count : <span className="opacity-20">-</span>}
+                                          <td key={mKey} className="py-0.5 px-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black w-6 print:min-w-[1.5rem]">
+                                            {count > 0 ? count : <span className="opacity-20 print:opacity-0">-</span>}
                                           </td>
                                         );
                                       });
                                       cols.push(
-                                        <td key={`total-${year}`} className="py-0.5 px-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-transparent border-r last:border-r-0 border-slate-300 print:border-black w-8">
-                                          {yearTotal > 0 ? yearTotal : <span className="opacity-20">-</span>}
+                                        <td key={`total-${year}`} className="py-0.5 px-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-transparent border-r last:border-r-0 border-slate-300 print:border-black w-8 print:min-w-[2rem]">
+                                          {yearTotal > 0 ? yearTotal : <span className="opacity-20 print:opacity-0">-</span>}
                                         </td>
                                       );
                                       return cols;
