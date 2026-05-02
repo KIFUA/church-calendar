@@ -2157,7 +2157,7 @@ export default function App() {
   };
 
   return (
-    <div className={`h-screen overflow-hidden text-slate-200 p-4 font-sans text-[0.625rem] flex flex-col ${isAssignmentModalOpen ? 'print:hidden' : ''}`} style={{ backgroundColor: appSettings.backgroundColor }}>
+    <div className={`h-screen overflow-hidden text-slate-200 p-4 font-sans text-[0.625rem] flex flex-col print:h-auto print:overflow-visible print:bg-white print:p-0 ${isAssignmentModalOpen ? 'print:hidden' : ''}`} style={{ backgroundColor: appSettings.backgroundColor }}>
       {showDiagnostics && (
         <div className="fixed inset-0 z-[3000] bg-black/90 backdrop-blur-md p-6 flex items-center justify-center" onClick={() => setShowDiagnostics(false)}>
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-[2rem] max-w-md w-full" onClick={e => e.stopPropagation()}>
@@ -2637,8 +2637,8 @@ export default function App() {
         )}
 
         {activeTab === 'statistics' && (
-          <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none">
-            <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-white print:border-none print:p-0 print:shadow-none">
+          <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none print:w-full print:p-0">
+            <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-white print:border-none print:p-0 print:shadow-none print:w-full">
                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 print:hidden gap-4">
                  <h2 className="text-slate-800 text-lg font-black uppercase tracking-wider">Архів: Залучення проповідників</h2>
                  <div className="flex flex-wrap items-center gap-3">
@@ -2710,8 +2710,8 @@ export default function App() {
                           };
                           return (
                             <>
-                              <tr className="border-b border-slate-700 print:border-black">
-                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 bg-slate-200 print:bg-gray-50 z-10 border-r border-slate-300 print:border-black text-[0.625rem] align-bottom text-center w-auto text-slate-700">Проповідник</th>
+                              <tr className="border-b border-slate-700 print:border-black print:bg-white">
+                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-slate-200 print:bg-white z-10 border-r border-slate-300 print:border-black text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.map(year => (
                                   <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-white text-slate-700">
                                     {year}
@@ -2725,7 +2725,7 @@ export default function App() {
                               <tr className="border-b border-slate-300 print:border-black bg-slate-200 print:bg-white">
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
                                   const cols = activeMonthsByYear[year].map(mo => (
-                                    <th key={year + '-' + mo} className="py-0.5 px-1 align-middle border-r border-slate-300 print:border-black w-6">
+                                    <th key={year + '-' + mo} className="py-0.5 px-1 align-middle border-r border-slate-300 print:border-black w-6 print:min-w-[1.25rem]">
                                       <div className="flex justify-center h-16">
                                         <span className="font-semibold text-[0.5625rem] uppercase tracking-wider text-slate-600" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
                                           {getMonthName(mo)}
@@ -2828,8 +2828,8 @@ export default function App() {
                                const rowBgClass = isEven ? 'bg-slate-50 print:bg-gray-50' : 'bg-white print:bg-white';
                                
                                return (
-                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass}`}>
-                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 ${rowBgClass}`}>{preacher}</td>
+                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass} print:bg-white`}>
+                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 print:relative z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 print:text-black ${rowBgClass} print:bg-white`}>{preacher}</td>
                                     {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
                                       let yearTotal = 0;
                                       const cols = activeMonthsByYear[year].map(mo => {
