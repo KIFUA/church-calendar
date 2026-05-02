@@ -2160,6 +2160,7 @@ export default function App() {
     <div className={`h-screen overflow-hidden text-slate-200 p-4 font-sans text-[0.625rem] flex flex-col print:h-auto print:overflow-visible print:p-0 ${isAssignmentModalOpen ? 'print:hidden' : ''}`} style={{ backgroundColor: appSettings.backgroundColor }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
+          @page { size: A4 portrait; margin: 10mm; }
           body, #root, div[style*="background-color"] { 
             background-color: white !important; 
             background-image: none !important;
@@ -2170,6 +2171,7 @@ export default function App() {
           }
           .sticky { position: static !important; }
           .print-no-stretch { width: auto !important; table-layout: auto !important; }
+          .print-thin-border { border-width: 0.5px !important; border-color: #94a3b8 !important; }
         }
       ` }} />
       {showDiagnostics && (
@@ -2725,13 +2727,14 @@ export default function App() {
                           return (
                             <>
                               <tr className="border-b border-slate-700 print:border-black print:bg-slate-200">
-                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-slate-200 print:bg-slate-200 z-10 border-r border-slate-300 print:border-black text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
+                                <th rowSpan={2} className="py-1 px-1 font-bold text-center border-r border-slate-300 print:border-black print:print-thin-border text-[0.625rem] w-6">№</th>
+                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-slate-200 print:bg-slate-200 z-10 border-r border-slate-300 print:border-black print:print-thin-border text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.map(year => (
-                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
+                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black print:print-thin-border bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
                                     {year}
                                   </th>
                                 )) : (
-                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
+                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black print:print-thin-border bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
                                     -
                                   </th>
                                 )}
@@ -2821,17 +2824,18 @@ export default function App() {
                          if (preachersOnly.length === 0 || preachersList.length === 0) {
                            return (
                              <tr>
-                               <td colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 1) : 2} className="p-4 text-center text-slate-500 italic border-t border-slate-300 print:border-black">Список проповідників порожній.</td>
+                               <td colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 2) : 3} className="p-4 text-center text-slate-500 italic border-t border-slate-300 print:border-black">Список проповідників порожній.</td>
                              </tr>
                            );
                          }
 
+                         let globalIdx = 0;
                          return preachersOnly.map((group: any) => (
                            <React.Fragment key={group.label}>
                              <tr>
                                <td 
-                                 colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 1) : 2} 
-                                 className="bg-slate-200 print:bg-slate-200 font-bold py-1 px-2 border-b border-t border-slate-300 print:border-black text-black z-[20] shadow-sm text-[0.6875rem] sticky left-0"
+                                 colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 2) : 3} 
+                                 className="bg-slate-200 print:bg-slate-200 font-bold py-1 px-2 border-b border-t border-slate-300 print:border-black print:print-thin-border text-black z-[20] shadow-sm text-[0.6875rem] sticky left-0"
                                >
                                  {group.label}
                                </td>
@@ -2842,8 +2846,9 @@ export default function App() {
                                const rowBgClass = isEven ? 'bg-slate-50 print:bg-slate-50' : 'bg-white print:bg-white';
                                
                                return (
-                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass}`}>
-                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 print:static z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 print:text-black ${rowBgClass}`}>{preacher}</td>
+                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black print:print-thin-border hover:bg-slate-100 transition-colors ${rowBgClass}`}>
+                                    <td className="py-1 px-1 text-center font-mono text-[0.625rem] border-r border-slate-300 print:border-black print:print-thin-border text-slate-500 print:text-black">{++globalIdx}</td>
+                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 print:static z-10 border-r border-slate-300 print:border-black print:print-thin-border w-auto text-slate-700 print:text-black ${rowBgClass}`}>{preacher}</td>
                                     {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
                                       let yearTotal = 0;
                                       const cols = activeMonthsByYear[year].map(mo => {
@@ -2851,13 +2856,13 @@ export default function App() {
                                         const count = pStats[mKey] || 0;
                                         yearTotal += count;
                                         return (
-                                          <td key={mKey} className="py-0.5 px-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black w-6 print:min-w-[1.5rem] print:w-[1.5rem]">
+                                          <td key={mKey} className="py-0.5 px-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black print:print-thin-border w-6 print:min-w-[1.5rem] print:w-[1.5rem]">
                                             {count > 0 ? count : <span className="opacity-20 print:opacity-30">-</span>}
                                           </td>
                                         );
                                       });
                                       cols.push(
-                                        <td key={`total-${year}`} className="py-0.5 px-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-slate-100 border-r last:border-r-0 border-slate-300 print:border-black w-8 print:min-w-[2rem]">
+                                        <td key={`total-${year}`} className="py-0.5 px-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-slate-100 border-r last:border-r-0 border-slate-300 print:border-black print:print-thin-border w-8 print:min-w-[2rem]">
                                           {yearTotal > 0 ? yearTotal : <span className="opacity-20 print:opacity-30">-</span>}
                                         </td>
                                       );
