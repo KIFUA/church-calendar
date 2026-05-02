@@ -2157,19 +2157,19 @@ export default function App() {
   };
 
   return (
-    <div className={`h-screen overflow-hidden text-slate-200 p-4 font-sans text-[0.625rem] flex flex-col print:h-auto print:overflow-visible print:!bg-white print:!p-0 ${isAssignmentModalOpen ? 'print:hidden' : ''}`} style={{ backgroundColor: appSettings.backgroundColor }}>
+    <div className={`h-screen overflow-hidden text-slate-200 p-4 font-sans text-[0.625rem] flex flex-col print:h-auto print:overflow-visible print:p-0 ${isAssignmentModalOpen ? 'print:hidden' : ''}`} style={{ backgroundColor: appSettings.backgroundColor }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body, #root, div[style*="background-color"] { 
             background-color: white !important; 
             background-image: none !important;
-            background: white !important;
           }
           * { 
             -webkit-print-color-adjust: exact !important; 
             print-color-adjust: exact !important; 
           }
           .sticky { position: static !important; }
+          .print-no-stretch { width: auto !important; table-layout: auto !important; }
         }
       ` }} />
       {showDiagnostics && (
@@ -2651,8 +2651,8 @@ export default function App() {
         )}
 
         {activeTab === 'statistics' && (
-          <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none print:w-full print:p-0 print:m-0 print:block">
-            <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-white print:border-none print:p-0 print:shadow-none print:w-full print:block">
+          <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none print:w-auto print:p-0 print:m-0 print:block">
+            <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-slate-100 print:rounded-none print:p-4 print:shadow-none print:w-auto print:block">
                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 print:hidden gap-4">
                  <h2 className="text-slate-800 text-lg font-black uppercase tracking-wider">Архів: Залучення проповідників</h2>
                  <div className="flex flex-wrap items-center gap-3">
@@ -2690,8 +2690,8 @@ export default function App() {
                </div>
  
                <div className="overflow-x-auto print:overflow-visible custom-scrollbar border border-slate-400 print:border-none shadow-sm print:shadow-none rounded-lg bg-white">
-                 <table className="w-[max-content] print:w-full text-left text-[0.6875rem] text-slate-700 print:text-black border-collapse">
-                   <thead className="bg-slate-300 print:bg-gray-50 text-slate-800">
+                 <table className="w-[max-content] print:w-auto text-left text-[0.6875rem] text-slate-700 print:text-black border-collapse print-no-stretch">
+                   <thead className="bg-slate-300 print:bg-slate-200 text-slate-800">
                      {(() => {
                          const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
                          const archiveYearsSet = new Set<string>();
@@ -2724,22 +2724,22 @@ export default function App() {
                           };
                           return (
                             <>
-                              <tr className="border-b border-slate-700 print:border-black print:bg-white">
-                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-slate-200 print:bg-white z-10 border-r border-slate-300 print:border-black text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
+                              <tr className="border-b border-slate-700 print:border-black print:bg-slate-200">
+                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-slate-200 print:bg-slate-200 z-10 border-r border-slate-300 print:border-black text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.map(year => (
-                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-white text-slate-700 print:text-black">
+                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
                                     {year}
                                   </th>
                                 )) : (
-                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-white text-slate-700 print:text-black">
+                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
                                     -
                                   </th>
                                 )}
                               </tr>
-                              <tr className="border-b border-slate-300 print:border-black bg-slate-200 print:bg-white">
+                              <tr className="border-b border-slate-300 print:border-black bg-slate-200 print:bg-slate-200">
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
                                   const cols = activeMonthsByYear[year].map(mo => (
-                                    <th key={year + '-' + mo} className="py-0.5 px-1 align-middle border-r border-slate-300 print:border-black w-6 print:min-w-[1.25rem]">
+                                    <th key={year + '-' + mo} className="py-0.5 px-1 align-middle border-r border-slate-300 print:border-black w-6 print:min-w-[1.25rem] print:w-[1.25rem]">
                                       <div className="flex justify-center h-16">
                                         <span className="font-semibold text-[0.5625rem] uppercase tracking-wider text-slate-600" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
                                           {getMonthName(mo)}
@@ -2748,7 +2748,7 @@ export default function App() {
                                     </th>
                                   ));
                                   cols.push(
-                                    <th key={'total-' + year} className="py-0.5 px-1 font-bold text-center text-slate-800 print:text-black uppercase text-[0.625rem] align-bottom border-r border-slate-300 print:border-black last:border-r-0 w-8 bg-slate-300 print:bg-gray-100">
+                                    <th key={'total-' + year} className="py-0.5 px-1 font-bold text-center text-slate-800 print:text-black uppercase text-[0.625rem] align-bottom border-r border-slate-300 print:border-black last:border-r-0 w-8 bg-slate-300 print:bg-slate-200">
                                       <div className="flex justify-center items-end h-16 pb-2">
                                         <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Разом</span>
                                       </div>
@@ -2831,7 +2831,7 @@ export default function App() {
                              <tr>
                                <td 
                                  colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 1) : 2} 
-                                 className="bg-slate-200 print:bg-gray-200 font-bold py-1 px-2 border-b border-t border-slate-300 print:border-black text-black z-[20] shadow-sm text-[0.6875rem] sticky left-0"
+                                 className="bg-slate-200 print:bg-slate-200 font-bold py-1 px-2 border-b border-t border-slate-300 print:border-black text-black z-[20] shadow-sm text-[0.6875rem] sticky left-0"
                                >
                                  {group.label}
                                </td>
@@ -2839,11 +2839,11 @@ export default function App() {
                              {group.items.map((preacher: string, idx: number) => {
                                const pStats = stats[preacher] || {};
                                const isEven = idx % 2 === 0;
-                               const rowBgClass = isEven ? 'bg-slate-50 print:bg-gray-50' : 'bg-white print:bg-white';
+                               const rowBgClass = isEven ? 'bg-slate-50 print:bg-slate-50' : 'bg-white print:bg-white';
                                
                                return (
-                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass} print:bg-white print:text-black`}>
-                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 print:static z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 print:text-black ${rowBgClass} print:bg-white`}>{preacher}</td>
+                                 <tr key={preacher} className={`border-b border-slate-200 print:border-black hover:bg-slate-100 transition-colors ${rowBgClass}`}>
+                                    <td className={`py-1 px-2.5 font-medium whitespace-nowrap sticky left-0 print:static z-10 border-r border-slate-300 print:border-black w-auto text-slate-700 print:text-black ${rowBgClass}`}>{preacher}</td>
                                     {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
                                       let yearTotal = 0;
                                       const cols = activeMonthsByYear[year].map(mo => {
@@ -2851,14 +2851,14 @@ export default function App() {
                                         const count = pStats[mKey] || 0;
                                         yearTotal += count;
                                         return (
-                                          <td key={mKey} className="py-0.5 px-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black w-6 print:min-w-[1.5rem]">
-                                            {count > 0 ? count : <span className="opacity-20 print:opacity-0">-</span>}
+                                          <td key={mKey} className="py-0.5 px-1 text-center text-slate-500 print:text-black font-mono border-r border-slate-200 print:border-black w-6 print:min-w-[1.5rem] print:w-[1.5rem]">
+                                            {count > 0 ? count : <span className="opacity-20 print:opacity-30">-</span>}
                                           </td>
                                         );
                                       });
                                       cols.push(
-                                        <td key={`total-${year}`} className="py-0.5 px-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-transparent border-r last:border-r-0 border-slate-300 print:border-black w-8 print:min-w-[2rem]">
-                                          {yearTotal > 0 ? yearTotal : <span className="opacity-20 print:opacity-0">-</span>}
+                                        <td key={`total-${year}`} className="py-0.5 px-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-slate-100 border-r last:border-r-0 border-slate-300 print:border-black w-8 print:min-w-[2rem]">
+                                          {yearTotal > 0 ? yearTotal : <span className="opacity-20 print:opacity-30">-</span>}
                                         </td>
                                       );
                                       return cols;
