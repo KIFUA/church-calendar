@@ -2352,9 +2352,14 @@ export default function App() {
                       </button>
                       <button 
                         onClick={() => {
-                          setActiveTab('statistics');
-                          setIsHamburgerOpen(false);
-                          setOpenSubmenu(null);
+                          if (isAdminAuthenticated && (userRole === 'admin' || userRole === 'preacher_manager')) {
+                            setActiveTab('statistics');
+                            setIsHamburgerOpen(false);
+                            setOpenSubmenu(null);
+                          } else {
+                            setPasswordPrompt({ isOpen: true, action: 'statistics' });
+                            setIsHamburgerOpen(false);
+                          }
                         }}
                         className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-400 hover:bg-slate-700 rounded"
                       >
@@ -2657,7 +2662,15 @@ export default function App() {
           <div className="max-w-6xl mx-auto flex flex-col gap-6 w-full print:max-w-none print:w-auto print:p-0 print:m-0 print:block">
             <div className="bg-slate-200/90 rounded-2xl p-6 shadow-md border border-slate-300 print:bg-slate-100 print:rounded-none print:p-4 print:shadow-none print:w-auto print:block">
                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 print:hidden gap-4">
-                 <h2 className="text-slate-800 text-lg font-black uppercase tracking-wider">Архів: Залучення проповідників</h2>
+                 <div className="flex items-center gap-4">
+                   <button 
+                     onClick={() => setActiveTab('view')}
+                     className="px-2 py-1 rounded-md bg-transparent text-slate-600 hover:bg-slate-50 transition-all text-[0.625rem] font-black uppercase tracking-widest flex items-center gap-1 border border-slate-400"
+                   >
+                     ⬅ НАЗАД
+                   </button>
+                   <h2 className="text-slate-800 text-lg font-black uppercase tracking-wider">Архів: Залучення проповідників</h2>
+                 </div>
                  <div className="flex flex-wrap items-center gap-3">
                    <div className="flex items-center gap-2 bg-slate-300/50 p-1.5 rounded-lg border border-slate-300 shadow-inner">
                      <span className="text-xs font-bold text-slate-500 uppercase px-1">Від:</span>
@@ -3567,6 +3580,8 @@ export default function App() {
                       hasAccess = role === 'admin' || role === 'preacher_manager';
                     } else if (action === 'music') {
                       hasAccess = role === 'admin' || role === 'singer_manager';
+                    } else if (action === 'statistics') {
+                      hasAccess = role === 'admin' || role === 'preacher_manager';
                     } else {
                       hasAccess = true;
                     }
@@ -3603,6 +3618,8 @@ export default function App() {
                           setSettingsInitialTab('telegram');
                           setIsEditingSettings(true);
                         }
+                    } else if (action === 'statistics') {
+                      setActiveTab('statistics');
                     } else if (action) {
                       activateMode(action as any);
                     }
