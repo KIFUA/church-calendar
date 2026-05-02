@@ -2171,7 +2171,8 @@ export default function App() {
           }
           .sticky { position: static !important; }
           .print-no-stretch { width: auto !important; table-layout: auto !important; }
-          .print-thin-border { border-width: 0.5px !important; border-color: #94a3b8 !important; }
+          .print-thin-border { border-width: 0.2px !important; border-color: #cbd5e1 !important; }
+          .print-no-stretch, .print-no-stretch th, .print-no-stretch td, .print-no-stretch tr { border-width: 0.2px !important; border-color: #cbd5e1 !important; }
         }
       ` }} />
       {showDiagnostics && (
@@ -2726,20 +2727,20 @@ export default function App() {
                           };
                           return (
                             <>
-                              <tr className="border-b border-slate-700 print:border-black print:bg-slate-200">
-                                <th rowSpan={2} className="py-1 px-1 font-bold text-center border-r border-slate-300 print:border-black print:print-thin-border text-[0.625rem] w-6">№</th>
-                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-slate-200 print:bg-slate-200 z-10 border-r border-slate-300 print:border-black print:print-thin-border text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
+                              <tr className="border-b border-slate-700 print:border-black print:bg-zinc-300">
+                                <th rowSpan={2} className="py-1 px-1 font-bold text-center border-r border-slate-300 print:border-black print:print-thin-border text-[0.625rem] w-6 bg-zinc-300 print:bg-zinc-300">№</th>
+                                <th rowSpan={2} className="py-1 px-2.5 font-bold uppercase whitespace-nowrap sticky left-0 print:relative bg-zinc-300 print:bg-zinc-300 z-10 border-r border-slate-300 print:border-black print:print-thin-border text-[0.625rem] align-bottom text-center w-auto text-slate-700 print:text-black">Проповідник</th>
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.map(year => (
-                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black print:print-thin-border bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
+                                  <th key={'year-' + year} colSpan={activeMonthsByYear[year].length + 1} className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black print:print-thin-border bg-zinc-300 print:bg-zinc-300 text-slate-700 print:text-black">
                                     {year}
                                   </th>
                                 )) : (
-                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black print:print-thin-border bg-slate-200 print:bg-slate-200 text-slate-700 print:text-black">
+                                  <th className="py-0.5 px-1 font-bold text-center text-[0.625rem] border-r last:border-r-0 border-b border-slate-300 print:border-black print:print-thin-border bg-zinc-300 print:bg-zinc-300 text-slate-700 print:text-black">
                                     -
                                   </th>
                                 )}
                               </tr>
-                              <tr className="border-b border-slate-300 print:border-black bg-slate-200 print:bg-slate-200">
+                              <tr className="border-b border-slate-300 print:border-black bg-zinc-300 print:bg-zinc-300">
                                 {filteredArchiveYears.length > 0 ? filteredArchiveYears.flatMap(year => {
                                   const cols = activeMonthsByYear[year].map(mo => (
                                     <th key={year + '-' + mo} className="py-0.5 px-1 align-middle border-r border-slate-300 print:border-black w-6 print:min-w-[1.25rem] print:w-[1.25rem]">
@@ -2751,7 +2752,7 @@ export default function App() {
                                     </th>
                                   ));
                                   cols.push(
-                                    <th key={'total-' + year} className="py-0.5 px-1 font-bold text-center text-slate-800 print:text-black uppercase text-[0.625rem] align-bottom border-r border-slate-300 print:border-black last:border-r-0 w-8 bg-slate-300 print:bg-slate-200">
+                                    <th key={'total-' + year} className="py-0.5 px-1 font-bold text-center text-slate-800 print:text-black uppercase text-[0.625rem] align-bottom border-r border-slate-300 print:border-black last:border-r-0 w-8 bg-zinc-400/50 print:bg-zinc-300">
                                       <div className="flex justify-center items-end h-16 pb-2">
                                         <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Разом</span>
                                       </div>
@@ -2835,7 +2836,7 @@ export default function App() {
                              <tr>
                                <td 
                                  colSpan={filteredArchiveYears.length ? filteredArchiveYears.reduce((sum, year) => sum + activeMonthsByYear[year].length + 1, 2) : 3} 
-                                 className="bg-slate-200 print:bg-slate-200 font-bold py-1 px-2 border-b border-t border-slate-300 print:border-black print:print-thin-border text-black z-[20] shadow-sm text-[0.6875rem] sticky left-0"
+                                 className="bg-zinc-200 print:bg-zinc-200 font-bold py-1 px-2 border-b border-t border-slate-300 print:border-black print:print-thin-border text-black z-[20] shadow-sm text-[0.6875rem] sticky left-0"
                                >
                                  {group.label}
                                </td>
@@ -2843,7 +2844,7 @@ export default function App() {
                              {group.items.map((preacher: string, idx: number) => {
                                const pStats = stats[preacher] || {};
                                const isEven = idx % 2 === 0;
-                               const rowBgClass = isEven ? 'bg-slate-50 print:bg-slate-50' : 'bg-white print:bg-white';
+                               const rowBgClass = isEven ? 'bg-slate-200 print:bg-gray-200' : 'bg-white print:bg-white';
                                
                                return (
                                  <tr key={preacher} className={`border-b border-slate-200 print:border-black print:print-thin-border hover:bg-slate-100 transition-colors ${rowBgClass}`}>
