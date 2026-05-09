@@ -56,6 +56,8 @@ import {
   Send
 } from 'lucide-react';
 import { PreacherAssignment } from './components/PreacherAssignment';
+import domtoimage from 'dom-to-image';
+import { jsPDF } from 'jspdf';
 
 const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, handleSaveSettings, ColorPicker, X, initialTab = 'name' }: any) => {
   const activeTab = initialTab;
@@ -1621,6 +1623,76 @@ export default function App() {
     setIsHamburgerOpen(false);
   };
 
+  const [isGeneratingWeekPdf, setIsGeneratingWeekPdf] = useState(false);
+
+  const handleExportWeekPdf = async () => {
+    setIsGeneratingWeekPdf(true);
+    try {
+      const container = document.querySelector('.calendar-container-scaling') || document.querySelector('.calendar') || document.querySelector('main') || document.body;
+      if (!container) {
+        alert('Не знайдено контейнер календаря для експорту');
+        setIsGeneratingWeekPdf(false);
+        return;
+      }
+
+      const el = container as HTMLElement;
+      const originalOverflow = el.style.overflow;
+      const originalWidth = el.style.width;
+      // Expand for full capture
+      el.style.overflow = 'visible';
+      el.style.width = 'auto';
+
+      // pick background from first non-transparent element
+      let bg = window.getComputedStyle(document.body).backgroundColor || '#ffffff';
+      try {
+        const first = document.querySelector('body > div');
+        if (first) {
+          const cs = window.getComputedStyle(first as Element);
+          if (cs && cs.backgroundColor && cs.backgroundColor !== 'transparent' && cs.backgroundColor !== 'rgba(0, 0, 0, 0)') bg = cs.backgroundColor;
+        }
+      } catch (e) {}
+
+      await new Promise(r => setTimeout(r, 300));
+      const imgData = await domtoimage.toPng(el, {
+        bgcolor: bg,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+        style: { transform: 'scale(1)', transformOrigin: 'top left' },
+        filter: (node) => {
+          if (node.classList && (node.classList.contains('no-print-pdf') || node.classList.contains('sticky') || node.classList.contains('fixed'))) return false;
+          return true;
+        }
+      });
+
+      // restore
+      el.style.overflow = originalOverflow;
+      el.style.width = originalWidth;
+
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const img = new Image(); img.src = imgData; await new Promise(r => { img.onload = r; });
+
+      let imgWidth = pdfWidth - 12;
+      let imgHeight = (img.height * imgWidth) / img.width;
+      if (imgHeight > pdfHeight - 12) {
+        imgHeight = pdfHeight - 12;
+        imgWidth = (img.width * imgHeight) / img.height;
+      }
+      const x = (pdfWidth - imgWidth) / 2;
+      pdf.addImage(imgData, 'PNG', x, 6, imgWidth, imgHeight);
+      pdf.save('week-calendar.pdf');
+    } catch (e) {
+      console.error(e);
+      alert('Помилка при створенні PDF тижня');
+    } finally {
+      setIsGeneratingWeekPdf(false);
+      setIsHamburgerOpen(false);
+      setOpenSubmenu(null);
+      setOpenNestedSubmenu(null);
+    }
+  };
+
   const handleDuplicateGroupTo = (targetType: 'event' | 'music' | 'staff') => {
     if (!editingGroup || editingGroup.type === 'location') return;
     
@@ -2364,6 +2436,23 @@ export default function App() {
                         className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-400 hover:bg-slate-700 rounded"
                       >
                         ЗАЛУЧЕННЯ ПРОПОВІДНИКІВ
+                      </button>
+                    </div>
+                  )}
+                  <div 
+                    className="px-6 py-1 text-[0.6875rem] text-slate-300 cursor-pointer hover:bg-slate-700 rounded flex justify-between items-center w-full"
+                    onClick={() => setOpenNestedSubmenu(prev => prev === 'mailings_menu' ? null : 'mailings_menu')}
+                  >
+                    РОЗСИЛКИ
+                    <span>{openNestedSubmenu === 'mailings_menu' ? '▲' : '▼'}</span>
+                  </div>
+                  {openNestedSubmenu === 'mailings_menu' && (
+                    <div className="pl-4 flex flex-col w-full">
+                      <button 
+                        onClick={() => { handleExportWeekPdf(); }}
+                        className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-400 hover:bg-slate-700 rounded"
+                      >
+                        ТИЖДЕНЬ
                       </button>
                     </div>
                   )}
@@ -3421,8 +3510,8 @@ export default function App() {
                       const isWeddingOrEngagement = ev.title?.toUpperCase().replace(/\s+/g, '').includes('ВЕСІЛЛЯ') || ev.title?.toUpperCase().replace(/\s+/g, '').includes('ЗАРУЧИНИ');
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
-                      return (
-                          <div key={i} className={`grid ${showPreacherTable ? 'grid-cols-[auto_1fr_auto]' : 'grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_auto]'} items-stretch ${showPreacherTable ? 'gap-1' : 'gap-1'} ${showPreacherTable ? 'py-0.5 px-1.5 pl-1.5' : 'py-1 px-1'} ${showPreacherTable ? 'rounded-xl' : 'rounded-lg'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        return (
+                          <div key={i} className={`grid ${showPreacherTable ? 'grid-cols-[auto_0.9fr_auto]' : 'grid-cols-[auto_0.9fr_auto] md:grid-cols-[auto_0.9fr_auto]'} items-stretch ${showPreacherTable ? 'gap-1' : 'gap-1'} ${showPreacherTable ? 'py-0.5 px-1.5 pl-1.5' : 'py-1 px-1'} ${showPreacherTable ? 'rounded-xl' : 'rounded-lg'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line - following the curve */}
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[2px]' : 'w-[2px] md:w-[0.1563rem]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
                           
@@ -3463,7 +3552,7 @@ export default function App() {
 
                           {/* Col 3: Ministers - Tight List */}
                           {(!isCleaning && !isWeddingOrEngagement && selectedDepartmentFilter !== 'ЛЕВИТИ') && (
-                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-lg' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-1 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 ${showPreacherTable ? 'max-w-[7.5rem]' : 'max-w-[5rem] md:max-w-none'} phone-landscape-no-wrap text-left items-start ml-auto`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-lg' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-1 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 ${showPreacherTable ? 'max-w-[7.5rem]' : 'max-w-[5rem] md:max-w-none'} phone-landscape-no-wrap text-left items-start`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
                                 <div key={lIdx} className={`font-medium ${showPreacherTable ? 'text-[0.625rem]' : 'text-[0.375rem] md:text-[0.6875rem] lg:text-[0.8125rem]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left`}>
                                   {formatLeadDisplay(lead)}
