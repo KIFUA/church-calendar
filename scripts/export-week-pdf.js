@@ -42,11 +42,21 @@ async function exportPdf(targetUrl, shrink = 0.92) {
           const el = n;
           const children = Array.from(el.children).filter(c => c.offsetParent !== null);
           if (children.length < 3) return;
+          const first = children[0];
+          const second = children[1];
           const third = children[2];
-          if (third.scrollWidth > third.clientWidth) {
-            el.style.gridTemplateColumns = '1fr minmax(0,1fr) 1fr';
-            modified++;
-          }
+          const gap = 8;
+          const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
+          const thirdScroll = third.scrollWidth;
+          const thirdClient = third.clientWidth;
+          if (thirdScroll <= thirdClient) return;
+
+          const desiredThird = Math.min(thirdScroll + 8, Math.floor(containerWidth * 0.6));
+          const remaining = Math.max(containerWidth - desiredThird - gap*2, 80);
+          const firstWidth = Math.max(40, Math.floor(remaining * 0.35));
+          const secondWidth = Math.max(40, remaining - firstWidth);
+          el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
+          modified++;
         } catch (e) {}
       });
       return modified;

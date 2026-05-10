@@ -1661,11 +1661,33 @@ export default function App() {
         }
       } catch (e) {}
 
-      // adjust grid columns in events to avoid third-column overflow
+      // For each 3-column event grid: if third column content overflows,
+      // reduce the middle column width so the third column can expand and fit text.
       try {
         const grids = Array.from(document.querySelectorAll('.grid.grid-cols-3')) as HTMLElement[];
         grids.forEach(g => {
-          try { g.style.gridTemplateColumns = '1fr minmax(0,1fr) 1fr'; } catch(e) {}
+          try {
+            const el = g as HTMLElement;
+            const children = Array.from(el.children).filter(c => (c as HTMLElement).offsetParent !== null) as HTMLElement[];
+            if (children.length < 3) return;
+            const first = children[0];
+            const second = children[1];
+            const third = children[2];
+            const gap = 8; // approximate grid gap in px
+            const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
+            const thirdScroll = third.scrollWidth;
+            const thirdClient = third.clientWidth;
+            if (thirdScroll <= thirdClient) return; // fits already
+
+            // Reserve width for third column based on its scrollWidth (but not more than 60% of container)
+            const desiredThird = Math.min(thirdScroll + 8, Math.floor(containerWidth * 0.6));
+            const remaining = Math.max(containerWidth - desiredThird - gap*2, 80);
+            // allocate first and second from remaining (prefer to shrink second)
+            const firstWidth = Math.max(40, Math.floor(remaining * 0.35));
+            const secondWidth = Math.max(40, remaining - firstWidth);
+
+            el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
+          } catch (e) {}
         });
       } catch (e) {}
 
