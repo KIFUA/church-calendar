@@ -1661,12 +1661,22 @@ export default function App() {
         }
       } catch (e) {}
 
+      // adjust grid columns in events to avoid third-column overflow
+      try {
+        const grids = Array.from(document.querySelectorAll('.grid.grid-cols-3')) as HTMLElement[];
+        grids.forEach(g => {
+          try { g.style.gridTemplateColumns = '1fr minmax(0,1fr) 1fr'; } catch(e) {}
+        });
+      } catch (e) {}
+
       await new Promise(r => setTimeout(r, 300));
+      // capture at higher pixel density to improve sharpness
+      const DPR = Math.min(2, window.devicePixelRatio || 1);
       const imgData = await domtoimage.toPng(el, {
         bgcolor: bg,
-        width: el.scrollWidth,
-        height: el.scrollHeight,
-        style: { transform: 'scale(1)', transformOrigin: 'top left' },
+        width: Math.round(el.scrollWidth * DPR),
+        height: Math.round(el.scrollHeight * DPR),
+        style: { transform: `scale(${DPR})`, transformOrigin: 'top left' },
         filter: (node) => {
           if (node.classList && (node.classList.contains('no-print-pdf') || node.classList.contains('sticky') || node.classList.contains('fixed'))) return false;
           return true;
@@ -1682,8 +1692,12 @@ export default function App() {
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const img = new Image(); img.src = imgData; await new Promise(r => { img.onload = r; });
 
+      // image captured at DPR scale -> adjust dimensions accordingly
       let imgWidth = pdfWidth - 12;
       let imgHeight = (img.height * imgWidth) / img.width;
+      if (DPR > 1) {
+        // no-op: image dimensions already reflect pixel size, jsPDF will rasterize at higher res
+      }
       if (imgHeight > pdfHeight - 12) {
         imgHeight = pdfHeight - 12;
         imgWidth = (img.width * imgHeight) / img.height;

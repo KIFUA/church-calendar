@@ -7,6 +7,9 @@ async function exportPdf(targetUrl, shrink = 0.92) {
   const context = await browser.newContext({ viewport: { width: 1200, height: 1600 } });
   const page = await context.newPage();
 
+  // increase viewport to improve print/render quality
+  try { await page.setViewportSize({ width: 1600, height: 2200 }); } catch (e) {}
+
   const isFile = !/^https?:\/\//.test(targetUrl);
   let url = targetUrl;
   if (isFile) url = 'file://' + path.resolve(process.cwd(), targetUrl);
@@ -20,6 +23,36 @@ async function exportPdf(targetUrl, shrink = 0.92) {
       await weekBtn.first().click();
     }
   } catch (e) {}
+
+  // give app time to render week layout and then normalize some styles for crisp print
+  await page.waitForTimeout(700);
+  await page.addStyleTag({ content: `
+    html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    .calendar-container-scaling, .calendar { transform: none !important; }
+    * { image-rendering: -webkit-optimize-contrast; }
+  `});
+
+  // Adjust grid columns for elements that use 3-column layout to avoid overflow in the 3rd column
+  try {
+    const changed = await page.evaluate(() => {
+      const nodes = Array.from(document.querySelectorAll('.grid.grid-cols-3'));
+      let modified = 0;
+      nodes.forEach(n => {
+        try {
+          const el = n;
+          const children = Array.from(el.children).filter(c => c.offsetParent !== null);
+          if (children.length < 3) return;
+          const third = children[2];
+          if (third.scrollWidth > third.clientWidth) {
+            el.style.gridTemplateColumns = '1fr minmax(0,1fr) 1fr';
+            modified++;
+          }
+        } catch (e) {}
+      });
+      return modified;
+    });
+    if (changed) console.log('Adjusted', changed, '3-column grids for export');
+  } catch (e) { console.warn('Grid adjust failed', e); }
 
   // Wait for calendar container
   const containerSelector = '.calendar-container-scaling, .calendar, #root, main';
