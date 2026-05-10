@@ -14,28 +14,32 @@ async function exportPdf(targetUrl, shrink = 0.92) {
   let url = targetUrl;
   if (isFile) url = 'file://' + path.resolve(process.cwd(), targetUrl);
 
-  await page.goto(url, { waitUntil: 'load', timeout: 60000 });
-
-  // Try to switch to week view by clicking the button labelled 'Тиждень'
-  try {
-    const weekBtn = page.locator('text=Тиждень');
-    if (await weekBtn.count() > 0) {
-      await weekBtn.first().click();
+  // Force 2-column layout for the main week grid
+  await page.evaluate(() => {
+    const mainCalendarContainer = document.querySelector('.calendar-container-scaling') || document.querySelector('.calendar');
+    if (mainCalendarContainer) {
+      mainCalendarContainer.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr)) !important';
+      mainCalendarContainer.style.maxWidth = 'unset !important';
     }
-  } catch (e) {}
-
+  });
+  
   // give app time to render week layout and then normalize some styles for crisp print
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(700); // Increased delay
   await page.addStyleTag({ content: `
     html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
     .calendar-container-scaling, .calendar { transform: none !important; }
     * { image-rendering: -webkit-optimize-contrast; }
+    /* Ensure any potentially conflicting grid classes are overridden */
+    .grid.grid-cols-3, .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      max-width: unset !important;
+    }
   `});
 
   // Adjust grid columns for elements that use 3-column layout to avoid overflow in the 3rd column
   try {
     const changed = await page.evaluate(() => {
-      const nodes = Array.from(document.querySelectorAll('.grid.grid-cols-3'));
+      const nodes = Array.from(document.querySelectorAll('.grid.grid-cols-3, .grid.grid-cols-2'));
       let modified = 0;
       nodes.forEach(n => {
         try {
@@ -44,8 +48,8 @@ async function exportPdf(targetUrl, shrink = 0.92) {
           // Force 2-column layout for the main week grid
           if (el.classList.contains('w-full')) {
              el.style.display = 'grid';
-             el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
-             el.style.width = '100%';
+             el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr)) !important';
+             el.style.maxWidth = 'unset !important';
           }
 
           const children = Array.from(el.children).filter(c => c.offsetParent !== null);

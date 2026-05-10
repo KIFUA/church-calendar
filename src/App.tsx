@@ -1631,8 +1631,15 @@ export default function App() {
     try {
       setActiveTab('view');
       setViewMode('week');
-      // give React time to render the week view before capturing
-      await new Promise(r => setTimeout(r, 500));
+      // Temporarily override any column layout logic to force 2 columns for PDF export
+      // Find the main calendar container and force it to 2 columns
+      const mainCalendarContainer = document.querySelector('.calendar-container-scaling') || document.querySelector('.calendar');
+      if (mainCalendarContainer) {
+        (mainCalendarContainer as HTMLElement).style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+        (mainCalendarContainer as HTMLElement).style.maxWidth = 'unset'; // Remove max-width to let it expand naturally
+      }
+      
+      await new Promise(r => setTimeout(r, 700)); // Increased delay for more reliable render
     } catch (e) {
       console.warn('Failed to switch to week view before export', e);
     }
@@ -1665,14 +1672,15 @@ export default function App() {
       // reduce the middle column width so the third column can expand and fit text.
       // Also shrink font-size of third column if it still doesn't fit.
       try {
-        const grids = Array.from(document.querySelectorAll('.grid.grid-cols-3')) as HTMLElement[];
+        const grids = Array.from(document.querySelectorAll('.grid.grid-cols-3, .grid.grid-cols-2')) as HTMLElement[];
         grids.forEach(g => {
           try {
             const el = g as HTMLElement;
             // Force 2-column layout for the week grid if it's the main calendar container
             if (el.classList.contains('w-full') && el.innerHTML.includes('day-card')) {
               el.style.display = 'grid';
-              el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+              el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr)) !important'; // Added !important
+              el.style.maxWidth = 'unset !important'; // Ensure it can expand to 2 cols
             }
             
             const children = Array.from(el.children).filter(c => (c as HTMLElement).offsetParent !== null) as HTMLElement[];
