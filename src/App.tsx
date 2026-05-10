@@ -1627,6 +1627,15 @@ export default function App() {
 
   const handleExportWeekPdf = async () => {
     setIsGeneratingWeekPdf(true);
+    // Ensure week view is active (switch in background) so layout matches PDF expectations
+    try {
+      setActiveTab('view');
+      setViewMode('week');
+      // give React time to render the week view before capturing
+      await new Promise(r => setTimeout(r, 500));
+    } catch (e) {
+      console.warn('Failed to switch to week view before export', e);
+    }
     try {
       const container = document.querySelector('.calendar-container-scaling') || document.querySelector('.calendar') || document.querySelector('main') || document.body;
       if (!container) {
