@@ -1663,6 +1663,7 @@ export default function App() {
 
       // For each 3-column event grid: if third column content overflows,
       // reduce the middle column width so the third column can expand and fit text.
+      // Also shrink font-size of third column if it still doesn't fit.
       try {
         const grids = Array.from(document.querySelectorAll('.grid.grid-cols-3')) as HTMLElement[];
         grids.forEach(g => {
@@ -1673,20 +1674,32 @@ export default function App() {
             const first = children[0];
             const second = children[1];
             const third = children[2];
-            const gap = 8; // approximate grid gap in px
+            
+            // Tighten line spacing for the whole event
+            el.style.lineHeight = '1.1';
+            
+            const gap = 4; // reduced gap
             const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
+            
+            // Step 1: Adjust column widths (give 3rd column up to 65% if needed)
             const thirdScroll = third.scrollWidth;
             const thirdClient = third.clientWidth;
-            if (thirdScroll <= thirdClient) return; // fits already
-
-            // Reserve width for third column based on its scrollWidth (but not more than 60% of container)
-            const desiredThird = Math.min(thirdScroll + 8, Math.floor(containerWidth * 0.6));
-            const remaining = Math.max(containerWidth - desiredThird - gap*2, 80);
-            // allocate first and second from remaining (prefer to shrink second)
-            const firstWidth = Math.max(40, Math.floor(remaining * 0.35));
-            const secondWidth = Math.max(40, remaining - firstWidth);
-
+            
+            let desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.65));
+            let remaining = Math.max(containerWidth - desiredThird - gap*2, 60);
+            let firstWidth = Math.max(35, Math.floor(remaining * 0.3));
+            let secondWidth = Math.max(30, remaining - firstWidth);
+            
             el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
+            el.style.gap = `${gap}px`;
+
+            // Step 2: If third column still overflows its 65% share, shrink its font
+            let fontSize = 100; // percent
+            while (third.scrollWidth > (desiredThird + 2) && fontSize > 60) {
+              fontSize -= 5;
+              third.style.fontSize = `${fontSize}%`;
+              third.style.lineHeight = '1.0';
+            }
           } catch (e) {}
         });
       } catch (e) {}

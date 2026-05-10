@@ -45,17 +45,28 @@ async function exportPdf(targetUrl, shrink = 0.92) {
           const first = children[0];
           const second = children[1];
           const third = children[2];
-          const gap = 8;
+          
+          el.style.lineHeight = '1.1';
+          const gap = 4;
           const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
+          
+          // Shrink middle column to give space to the third one
           const thirdScroll = third.scrollWidth;
-          const thirdClient = third.clientWidth;
-          if (thirdScroll <= thirdClient) return;
-
-          const desiredThird = Math.min(thirdScroll + 8, Math.floor(containerWidth * 0.6));
-          const remaining = Math.max(containerWidth - desiredThird - gap*2, 80);
-          const firstWidth = Math.max(40, Math.floor(remaining * 0.35));
-          const secondWidth = Math.max(40, remaining - firstWidth);
+          const desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.65));
+          const remaining = Math.max(containerWidth - desiredThird - gap*2, 60);
+          const firstWidth = Math.max(35, Math.floor(remaining * 0.3));
+          const secondWidth = Math.max(30, remaining - firstWidth);
+          
           el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
+          el.style.gap = `${gap}px`;
+
+          // If still overflows, shrink font size of the third column content
+          let fs = 100;
+          while (third.scrollWidth > (desiredThird + 2) && fs > 60) {
+            fs -= 5;
+            third.style.fontSize = `${fs}%`;
+            third.style.lineHeight = '1.0';
+          }
           modified++;
         } catch (e) {}
       });
@@ -108,12 +119,12 @@ async function exportPdf(targetUrl, shrink = 0.92) {
     }
     /* proportional text shrink */
     .calendar-container-scaling, .calendar, html, body { font-size: ${fontPercent}% !important; line-height: 1.05 !important; }
-    /* moderate padding/margin reduction to preserve readability */
-    .calendar-container-scaling * , .calendar * { margin:0 !important; padding:4px !important; }
+    /* moderate padding/margin reduction for higher density */
+    .calendar-container-scaling * , .calendar * { margin:0 !important; padding:2px !important; }
     /* reduce card heights and spacings a bit */
-    .grid, .card, .event, .card-content, .card-body, .day-card { padding:6px !important; }
+    .grid, .card, .event, .card-content, .card-body, .day-card { padding:3px 5px !important; }
     /* compact headers and badges */
-    .header, .badge, .tag, .chip { font-size: 0.85em !important; padding:3px 6px !important; }
+    .header, .badge, .tag, .chip { font-size: 0.82em !important; padding:2px 4px !important; }
     .calendar { overflow: visible !important; }
     img, svg { max-width: 100% !important; height: auto !important; }
 
@@ -140,11 +151,11 @@ async function exportPdf(targetUrl, shrink = 0.92) {
       /* aggressive but proportional font reduction */
       html, body, .calendar-container-scaling, .calendar { font-size: 10px !important; }
       /* reduce most padding/margins inside cards */
-      .calendar-container-scaling * , .calendar * { margin:0 !important; padding:2px !important; line-height:1 !important; }
+      .calendar-container-scaling * , .calendar * { margin:0 !important; padding:1px !important; line-height:1.0 !important; }
       /* reduce card heights and spacings */
-      .grid, .card, .event, .card-content, .card-body, .day-card { padding:4px !important; }
+      .grid, .card, .event, .card-content, .card-body, .day-card { padding:2px 3px !important; margin-bottom: 2px !important; }
       /* compact headers and badges */
-      .header, .badge, .tag, .chip { font-size: 8px !important; padding:2px 4px !important; }
+      .header, .badge, .tag, .chip { font-size: 8px !important; padding:1px 3px !important; }
       .calendar { overflow: visible !important; }
       img, svg { max-width: 100% !important; height: auto !important; }
     }
