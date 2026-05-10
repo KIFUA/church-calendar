@@ -40,13 +40,23 @@ async function exportPdf(targetUrl, shrink = 0.92) {
       nodes.forEach(n => {
         try {
           const el = n;
+          
+          // Force 2-column layout for the main week grid
+          if (el.classList.contains('w-full')) {
+             el.style.display = 'grid';
+             el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+             el.style.width = '100%';
+          }
+
           const children = Array.from(el.children).filter(c => c.offsetParent !== null);
           if (children.length < 3) return;
           const first = children[0];
           const second = children[1];
           const third = children[2];
           
-          el.style.lineHeight = '1.1';
+          el.style.lineHeight = '1.2';
+          el.style.alignItems = 'start';
+          el.style.height = 'auto';
           const gap = 4;
           const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
           
@@ -62,10 +72,9 @@ async function exportPdf(targetUrl, shrink = 0.92) {
 
           // If still overflows, shrink font size of the third column content
           let fs = 100;
-          while (third.scrollWidth > (desiredThird + 2) && fs > 60) {
+          while (third.scrollWidth > (desiredThird + 2) && fs > 70) {
             fs -= 5;
             third.style.fontSize = `${fs}%`;
-            third.style.lineHeight = '1.0';
           }
           modified++;
         } catch (e) {}
@@ -148,12 +157,16 @@ async function exportPdf(targetUrl, shrink = 0.92) {
     @media print {
       html, body { width:210mm; height:297mm; }
       .calendar-container-scaling, .calendar, #root, main { width:210mm !important; max-width:210mm !important; }
+      /* Force 2 columns for week view in print */
+      .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
       /* aggressive but proportional font reduction */
       html, body, .calendar-container-scaling, .calendar { font-size: 10px !important; }
       /* reduce most padding/margins inside cards */
-      .calendar-container-scaling * , .calendar * { margin:0 !important; padding:1px !important; line-height:1.0 !important; }
+      .calendar-container-scaling * , .calendar * { margin:0 !important; padding:1px !important; line-height:1.2 !important; }
       /* reduce card heights and spacings */
-      .grid, .card, .event, .card-content, .card-body, .day-card { padding:2px 3px !important; margin-bottom: 2px !important; }
+      .grid, .card, .event, .card-content, .card-body, .day-card { padding:2px 3px !important; margin-bottom: 2px !important; height: auto !important; min-height: 0 !important; }
       /* compact headers and badges */
       .header, .badge, .tag, .chip { font-size: 8px !important; padding:1px 3px !important; }
       .calendar { overflow: visible !important; }

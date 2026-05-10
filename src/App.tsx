@@ -1669,21 +1669,28 @@ export default function App() {
         grids.forEach(g => {
           try {
             const el = g as HTMLElement;
+            // Force 2-column layout for the week grid if it's the main calendar container
+            if (el.classList.contains('w-full') && el.innerHTML.includes('day-card')) {
+              el.style.display = 'grid';
+              el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+            }
+            
             const children = Array.from(el.children).filter(c => (c as HTMLElement).offsetParent !== null) as HTMLElement[];
             if (children.length < 3) return;
             const first = children[0];
             const second = children[1];
             const third = children[2];
             
-            // Tighten line spacing for the whole event
-            el.style.lineHeight = '1.1';
+            // Tighten line spacing but keep it safe to avoid vertical overlap
+            el.style.lineHeight = '1.2';
+            el.style.alignItems = 'start';
+            el.style.height = 'auto';
             
             const gap = 4; // reduced gap
             const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
             
             // Step 1: Adjust column widths (give 3rd column up to 65% if needed)
             const thirdScroll = third.scrollWidth;
-            const thirdClient = third.clientWidth;
             
             let desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.65));
             let remaining = Math.max(containerWidth - desiredThird - gap*2, 60);
@@ -1695,10 +1702,9 @@ export default function App() {
 
             // Step 2: If third column still overflows its 65% share, shrink its font
             let fontSize = 100; // percent
-            while (third.scrollWidth > (desiredThird + 2) && fontSize > 60) {
+            while (third.scrollWidth > (desiredThird + 2) && fontSize > 70) {
               fontSize -= 5;
               third.style.fontSize = `${fontSize}%`;
-              third.style.lineHeight = '1.0';
             }
           } catch (e) {}
         });
