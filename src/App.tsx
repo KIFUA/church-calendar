@@ -1697,23 +1697,33 @@ export default function App() {
             const gap = 4; // reduced gap
             const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
             
-            // Step 1: Adjust column widths (give 3rd column up to 65% if needed)
+            // Step 1: Adjust column widths (give 3rd column up to 75% if needed)
             const thirdScroll = third.scrollWidth;
             
-            let desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.65));
-            let remaining = Math.max(containerWidth - desiredThird - gap*2, 60);
-            let firstWidth = Math.max(35, Math.floor(remaining * 0.3));
-            let secondWidth = Math.max(30, remaining - firstWidth);
+            let desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.75)); // Increased max share for third column
+            let remaining = Math.max(containerWidth - desiredThird - gap*2, 50); // Reduced min remaining width
+            let firstWidth = Math.max(30, Math.floor(remaining * 0.3)); // Reduced min width for first
+            let secondWidth = Math.max(20, remaining - firstWidth); // Reduced min width for second
             
             el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
             el.style.gap = `${gap}px`;
 
-            // Step 2: If third column still overflows its 65% share, shrink its font
+            // Step 2: If third column still overflows its 75% share, shrink its font
             let fontSize = 100; // percent
-            while (third.scrollWidth > (desiredThird + 2) && fontSize > 70) {
+            while (third.scrollWidth > (desiredThird + 2) && fontSize > 50) { // Lowered min font size
               fontSize -= 5;
               third.style.fontSize = `${fontSize}%`;
             }
+
+            // Final check: if after all adjustments, content still overflows vertically, try to adjust line-height for this event
+            if (el.scrollHeight > el.clientHeight) {
+              let currentLineHeight = parseFloat(el.style.lineHeight) || 1.2;
+              while (el.scrollHeight > el.clientHeight && currentLineHeight > 0.9) {
+                currentLineHeight -= 0.05;
+                el.style.lineHeight = `${currentLineHeight}`;
+              }
+            }
+
           } catch (e) {}
         });
       } catch (e) {}

@@ -66,20 +66,30 @@ async function exportPdf(targetUrl, shrink = 0.92) {
           
           // Shrink middle column to give space to the third one
           const thirdScroll = third.scrollWidth;
-          const desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.65));
-          const remaining = Math.max(containerWidth - desiredThird - gap*2, 60);
-          const firstWidth = Math.max(35, Math.floor(remaining * 0.3));
-          const secondWidth = Math.max(30, remaining - firstWidth);
+          const desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.75)); // Increased max share for third column
+          const remaining = Math.max(containerWidth - desiredThird - gap*2, 50); // Reduced min remaining width
+          const firstWidth = Math.max(30, Math.floor(remaining * 0.3)); // Reduced min width for first
+          const secondWidth = Math.max(20, remaining - firstWidth); // Reduced min width for second
           
           el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
           el.style.gap = `${gap}px`;
 
           // If still overflows, shrink font size of the third column content
           let fs = 100;
-          while (third.scrollWidth > (desiredThird + 2) && fs > 70) {
+          while (third.scrollWidth > (desiredThird + 2) && fs > 50) { // Lowered min font size
             fs -= 5;
             third.style.fontSize = `${fs}%`;
           }
+
+          // Final check: if after all adjustments, content still overflows vertically, try to adjust line-height for this event
+          if (el.scrollHeight > el.clientHeight) {
+            let currentLineHeight = parseFloat(el.style.lineHeight) || 1.2;
+            while (el.scrollHeight > el.clientHeight && currentLineHeight > 0.9) {
+              currentLineHeight -= 0.05;
+              el.style.lineHeight = `${currentLineHeight}`;
+            }
+          }
+
           modified++;
         } catch (e) {}
       });
