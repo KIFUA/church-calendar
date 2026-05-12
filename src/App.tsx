@@ -878,7 +878,6 @@ const MiniCalendar = ({ selectedDate, onSelect }: { selectedDate: Date, onSelect
               onClick={() => onSelect(d)}
               className={`h-[1.25rem] w-[1.25rem] mx-auto flex items-center justify-center rounded-full text-[0.6875rem] font-bold transition-all
                 ${isSelected ? 'bg-blue-600 shadow-md scale-110 z-10' : 'hover:bg-slate-800'}
-                ${isToday && !isSelected ? 'ring-1 ring-white/80' : ''}
                 ${textColor}
               `}
             >
@@ -3386,7 +3385,7 @@ export default function App() {
                       setSelectedDayForEvent(d.dateKey);
                     }
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[0.25rem]' : 'border-l-[0.375rem]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[5rem]' : 'min-h-[6.25rem] lg:min-h-[8.125rem]'} ${showPreacherTable ? 'rounded-2xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${viewMode === 'week' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ ТИЖНЯ */' : ''} ${viewMode === 'month' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ МІСЯЦЯ (ТАКІ САМІ ЯК ДЛЯ ТИЖНЯ) */' : ''} ${showPreacherTable || viewMode === 'year' ? 'max-w-full' : ''} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#1e293b]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} ${viewMode === 'day' ? 'flex-1 w-full max-w-[37.5rem]' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[0.25rem]' : 'border-l-[0.375rem]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[5rem]' : 'min-h-[6.25rem] lg:min-h-[8.125rem]'} ${showPreacherTable ? 'rounded-2xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${viewMode === 'week' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ ТИЖНЯ */' : ''} ${viewMode === 'month' && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto /* НІКОЛИ НЕ ЗМІНЮВАТИ ЦІ КЛАСИ МАСШТАБУВАННЯ ДЛЯ МІСЯЦЯ (ТАКІ САМІ ЯК ДЛЯ ТИЖНЯ) */' : ''} ${showPreacherTable || viewMode === 'year' ? 'max-w-full' : ''} hover:shadow-xl hover:-translate-y-0.5 ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} ${viewMode === 'day' ? 'flex-1 w-full max-w-[37.5rem]' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
@@ -3394,7 +3393,7 @@ export default function App() {
                 >
                   {/* Left Column: Date & Day */}
                   <div className={`${showPreacherTable ? 'w-10' : (viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1.5 md:py-2`}>
-                    <span className={`${showPreacherTable ? 'text-[1rem]' : 'text-[0.875rem] md:text-[1rem]'} font-black uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                    <span className={`${showPreacherTable ? 'text-[1rem]' : 'text-[0.875rem] md:text-[1rem]'} font-black uppercase leading-none text-slate-900`}>
                       {String(d.day).padStart(2, '0')}
                     </span>
                     <span className={`${showPreacherTable ? 'text-[0.5625rem]' : 'text-[0.4375rem] md:text-[0.5rem]'} font-black text-slate-600 uppercase leading-none tracking-tighter`}>
