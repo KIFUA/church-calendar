@@ -56,6 +56,8 @@ import {
   Send
 } from 'lucide-react';
 import { PreacherAssignment } from './components/PreacherAssignment';
+import domtoimage from 'dom-to-image';
+import { jsPDF } from 'jspdf';
 
 const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, handleSaveSettings, ColorPicker, X, initialTab = 'name' }: any) => {
   const activeTab = initialTab;
@@ -1620,6 +1622,158 @@ export default function App() {
     setIsHamburgerOpen(false);
   };
 
+  const [isGeneratingWeekPdf, setIsGeneratingWeekPdf] = useState(false);
+
+  const handleExportWeekPdf = async () => {
+    setIsGeneratingWeekPdf(true);
+    // Ensure week view is active (switch in background) so layout matches PDF expectations
+    try {
+      setActiveTab('view');
+      setViewMode('week');
+      // Temporarily override any column layout logic to force 2 columns for PDF export
+      // Find the main calendar container and force it to 2 columns
+      const mainCalendarContainer = document.querySelector('.calendar-container-scaling') || document.querySelector('.calendar');
+      if (mainCalendarContainer) {
+        (mainCalendarContainer as HTMLElement).style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+        (mainCalendarContainer as HTMLElement).style.maxWidth = 'unset'; // Remove max-width to let it expand naturally
+      }
+      
+      await new Promise(r => setTimeout(r, 700)); // Increased delay for more reliable render
+    } catch (e) {
+      console.warn('Failed to switch to week view before export', e);
+    }
+    try {
+      const container = document.querySelector('.calendar-container-scaling') || document.querySelector('.calendar') || document.querySelector('main') || document.body;
+      if (!container) {
+        alert('Не знайдено контейнер календаря для експорту');
+        setIsGeneratingWeekPdf(false);
+        return;
+      }
+
+      const el = container as HTMLElement;
+      const originalOverflow = el.style.overflow;
+      const originalWidth = el.style.width;
+      // Expand for full capture
+      el.style.overflow = 'visible';
+      el.style.width = 'auto';
+
+      // pick background from first non-transparent element
+      let bg = window.getComputedStyle(document.body).backgroundColor || '#ffffff';
+      try {
+        const first = document.querySelector('body > div');
+        if (first) {
+          const cs = window.getComputedStyle(first as Element);
+          if (cs && cs.backgroundColor && cs.backgroundColor !== 'transparent' && cs.backgroundColor !== 'rgba(0, 0, 0, 0)') bg = cs.backgroundColor;
+        }
+      } catch (e) {}
+
+      // For each 3-column event grid: if third column content overflows,
+      // reduce the middle column width so the third column can expand and fit text.
+      // Also shrink font-size of third column if it still doesn't fit.
+      try {
+        const grids = Array.from(document.querySelectorAll('.grid.grid-cols-3, .grid.grid-cols-2')) as HTMLElement[];
+        grids.forEach(g => {
+          try {
+            const el = g as HTMLElement;
+            // Force 2-column layout for the week grid if it's the main calendar container
+            if (el.classList.contains('w-full') && el.innerHTML.includes('day-card')) {
+              el.style.display = 'grid';
+              el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr)) !important'; // Added !important
+              el.style.maxWidth = 'unset !important'; // Ensure it can expand to 2 cols
+            }
+            
+            const children = Array.from(el.children).filter(c => (c as HTMLElement).offsetParent !== null) as HTMLElement[];
+            if (children.length < 3) return;
+            const first = children[0];
+            const second = children[1];
+            const third = children[2];
+            
+            // Tighten line spacing but keep it safe to avoid vertical overlap
+            el.style.lineHeight = '1.2';
+            el.style.alignItems = 'start';
+            el.style.height = 'auto';
+            
+            const gap = 4; // reduced gap
+            const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
+            
+            // Step 1: Adjust column widths (give 3rd column up to 75% if needed)
+            const thirdScroll = third.scrollWidth;
+            
+            let desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.75)); // Increased max share for third column
+            let remaining = Math.max(containerWidth - desiredThird - gap*2, 50); // Reduced min remaining width
+            let firstWidth = Math.max(30, Math.floor(remaining * 0.3)); // Reduced min width for first
+            let secondWidth = Math.max(20, remaining - firstWidth); // Reduced min width for second
+            
+            el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
+            el.style.gap = `${gap}px`;
+
+            // Step 2: If third column still overflows its 75% share, shrink its font
+            let fontSize = 100; // percent
+            while (third.scrollWidth > (desiredThird + 2) && fontSize > 50) { // Lowered min font size
+              fontSize -= 5;
+              third.style.fontSize = `${fontSize}%`;
+            }
+
+            // Final check: if after all adjustments, content still overflows vertically, try to adjust line-height for this event
+            if (el.scrollHeight > el.clientHeight) {
+              let currentLineHeight = parseFloat(el.style.lineHeight) || 1.2;
+              while (el.scrollHeight > el.clientHeight && currentLineHeight > 0.9) {
+                currentLineHeight -= 0.05;
+                el.style.lineHeight = `${currentLineHeight}`;
+              }
+            }
+
+          } catch (e) {}
+        });
+      } catch (e) {}
+
+      await new Promise(r => setTimeout(r, 300));
+      // capture at higher pixel density to improve sharpness
+      const DPR = Math.min(2, window.devicePixelRatio || 1);
+      const imgData = await domtoimage.toPng(el, {
+        bgcolor: bg,
+        width: Math.round(el.scrollWidth * DPR),
+        height: Math.round(el.scrollHeight * DPR),
+        style: { transform: `scale(${DPR})`, transformOrigin: 'top left' },
+        filter: (node) => {
+          if (node.classList && (node.classList.contains('no-print-pdf') || node.classList.contains('sticky') || node.classList.contains('fixed'))) return false;
+          return true;
+        }
+      });
+
+      // restore
+      el.style.overflow = originalOverflow;
+      el.style.width = originalWidth;
+
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const img = new Image(); img.src = imgData; await new Promise(r => { img.onload = r; });
+
+      // image captured at DPR scale -> adjust dimensions accordingly
+      let imgWidth = pdfWidth - 12;
+      let imgHeight = (img.height * imgWidth) / img.width;
+      if (DPR > 1) {
+        // no-op: image dimensions already reflect pixel size, jsPDF will rasterize at higher res
+      }
+      if (imgHeight > pdfHeight - 12) {
+        imgHeight = pdfHeight - 12;
+        imgWidth = (img.width * imgHeight) / img.height;
+      }
+      const x = (pdfWidth - imgWidth) / 2;
+      pdf.addImage(imgData, 'PNG', x, 6, imgWidth, imgHeight);
+      pdf.save('week-calendar.pdf');
+    } catch (e) {
+      console.error(e);
+      alert('Помилка при створенні PDF тижня');
+    } finally {
+      setIsGeneratingWeekPdf(false);
+      setIsHamburgerOpen(false);
+      setOpenSubmenu(null);
+      setOpenNestedSubmenu(null);
+    }
+  };
+
   const handleDuplicateGroupTo = (targetType: 'event' | 'music' | 'staff') => {
     if (!editingGroup || editingGroup.type === 'location') return;
     
@@ -2363,6 +2517,23 @@ export default function App() {
                         className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-400 hover:bg-slate-700 rounded"
                       >
                         ЗАЛУЧЕННЯ ПРОПОВІДНИКІВ
+                      </button>
+                    </div>
+                  )}
+                  <div 
+                    className="px-6 py-1 text-[0.6875rem] text-slate-300 cursor-pointer hover:bg-slate-700 rounded flex justify-between items-center w-full"
+                    onClick={() => setOpenNestedSubmenu(prev => prev === 'mailings_menu' ? null : 'mailings_menu')}
+                  >
+                    РОЗСИЛКИ
+                    <span>{openNestedSubmenu === 'mailings_menu' ? '▲' : '▼'}</span>
+                  </div>
+                  {openNestedSubmenu === 'mailings_menu' && (
+                    <div className="pl-4 flex flex-col w-full">
+                      <button 
+                        onClick={() => { handleExportWeekPdf(); }}
+                        className="text-left w-full px-6 py-1 text-[0.6875rem] text-slate-400 hover:bg-slate-700 rounded"
+                      >
+                        ТИЖДЕНЬ
                       </button>
                     </div>
                   )}
@@ -3420,8 +3591,8 @@ export default function App() {
                       const isWeddingOrEngagement = ev.title?.toUpperCase().replace(/\s+/g, '').includes('ВЕСІЛЛЯ') || ev.title?.toUpperCase().replace(/\s+/g, '').includes('ЗАРУЧИНИ');
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
-                      return (
-                          <div key={i} className={`grid ${showPreacherTable ? 'grid-cols-[auto_1fr_auto]' : 'grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_auto]'} items-stretch ${showPreacherTable ? 'gap-1' : 'gap-1'} ${showPreacherTable ? 'py-0.5 px-1.5 pl-1.5' : 'py-1 px-1'} ${showPreacherTable ? 'rounded-xl' : 'rounded-lg'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        return (
+                          <div key={i} className={`grid ${showPreacherTable ? 'grid-cols-[auto_0.9fr_auto]' : 'grid-cols-[auto_0.9fr_auto] md:grid-cols-[auto_0.9fr_auto]'} items-stretch ${showPreacherTable ? 'gap-1' : 'gap-1'} ${showPreacherTable ? 'py-0.5 px-1.5 pl-1.5' : 'py-1 px-1'} ${showPreacherTable ? 'rounded-xl' : 'rounded-lg'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line - following the curve */}
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[2px]' : 'w-[2px] md:w-[0.1563rem]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
                           
@@ -3462,7 +3633,7 @@ export default function App() {
 
                           {/* Col 3: Ministers - Tight List */}
                           {(!isCleaning && !isWeddingOrEngagement && selectedDepartmentFilter !== 'ЛЕВИТИ') && (
-                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-lg' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-1 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 ${showPreacherTable ? 'max-w-[7.5rem]' : 'max-w-[5rem] md:max-w-none'} phone-landscape-no-wrap text-left items-start ml-auto`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-lg' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-1 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 ${showPreacherTable ? 'max-w-[7.5rem]' : 'max-w-[5rem] md:max-w-none'} phone-landscape-no-wrap text-left items-start`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
                                 <div key={lIdx} className={`font-medium ${showPreacherTable ? 'text-[0.625rem]' : 'text-[0.375rem] md:text-[0.6875rem] lg:text-[0.8125rem]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left`}>
                                   {formatLeadDisplay(lead)}
