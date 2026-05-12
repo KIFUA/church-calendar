@@ -3635,7 +3635,7 @@ export default function App() {
                           {(!isCleaning && !isWeddingOrEngagement && selectedDepartmentFilter !== 'ЛЕВИТИ') && (
                             <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-lg' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-1 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 ${showPreacherTable ? 'max-w-[7.5rem]' : 'max-w-[5rem] md:max-w-none'} phone-landscape-no-wrap text-left items-start`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`font-medium ${showPreacherTable ? 'text-[0.625rem]' : 'text-[0.375rem] md:text-[0.6875rem] lg:text-[0.8125rem]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left`}>
+                                <div key={lIdx} className={`font-medium ${showPreacherTable ? 'text-[0.625rem]' : 'text-[0.375rem] md:text-[0.6875rem] lg:text-[0.8125rem]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left whitespace-nowrap overflow-hidden`}>
                                   {formatLeadDisplay(lead)}
                                 </div>
                               ))}

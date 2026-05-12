@@ -30,16 +30,16 @@ async function exportPdf(targetUrl, shrink = 0.92) {
     .calendar-container-scaling, .calendar { transform: none !important; }
     * { image-rendering: -webkit-optimize-contrast; }
     /* Ensure any potentially conflicting grid classes are overridden */
-    .grid.grid-cols-3, .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+    .grid[class*="grid-cols-"] {
       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       max-width: unset !important;
     }
   `});
 
-  // Adjust grid columns for elements that use 3-column layout to avoid overflow in the 3rd column
+  // Adjust grid columns for elements that use 3-column layout to avoid overflow in the last column
   try {
     const changed = await page.evaluate(() => {
-      const nodes = Array.from(document.querySelectorAll('.grid.grid-cols-3, .grid.grid-cols-2'));
+      const nodes = Array.from(document.querySelectorAll('.grid[class*="grid-cols-"]'));
       let modified = 0;
       nodes.forEach(n => {
         try {
@@ -54,9 +54,7 @@ async function exportPdf(targetUrl, shrink = 0.92) {
 
           const children = Array.from(el.children).filter(c => c.offsetParent !== null);
           if (children.length < 3) return;
-          const first = children[0];
-          const second = children[1];
-          const third = children[2];
+          const last = children[children.length - 1];
           
           el.style.lineHeight = '1.2';
           el.style.alignItems = 'start';
@@ -64,21 +62,21 @@ async function exportPdf(targetUrl, shrink = 0.92) {
           const gap = 4;
           const containerWidth = el.clientWidth || el.getBoundingClientRect().width;
           
-          // Shrink middle column to give space to the third one
-          const thirdScroll = third.scrollWidth;
-          const desiredThird = Math.min(thirdScroll + 4, Math.floor(containerWidth * 0.75)); // Increased max share for third column
-          const remaining = Math.max(containerWidth - desiredThird - gap*2, 50); // Reduced min remaining width
+          // Shrink last column to give space to the rest of the grid
+          const lastScroll = last.scrollWidth;
+          const desiredLast = Math.min(lastScroll + 4, Math.floor(containerWidth * 0.75)); // Increased max share for last column
+          const remaining = Math.max(containerWidth - desiredLast - gap*2, 50); // Reduced min remaining width
           const firstWidth = Math.max(30, Math.floor(remaining * 0.3)); // Reduced min width for first
           const secondWidth = Math.max(20, remaining - firstWidth); // Reduced min width for second
           
-          el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredThird}px`;
+          el.style.gridTemplateColumns = `${firstWidth}px ${secondWidth}px ${desiredLast}px`;
           el.style.gap = `${gap}px`;
 
-          // If still overflows, shrink font size of the third column content
+          // If still overflows, shrink font size of the last column content
           let fs = 100;
-          while (third.scrollWidth > (desiredThird + 2) && fs > 50) { // Lowered min font size
+          while (last.scrollWidth > (desiredLast + 2) && fs > 50) { // Lowered min font size
             fs -= 5;
-            third.style.fontSize = `${fs}%`;
+            last.style.fontSize = `${fs}%`;
           }
 
           // Final check: if after all adjustments, content still overflows vertically, try to adjust line-height for this event
@@ -172,7 +170,7 @@ async function exportPdf(targetUrl, shrink = 0.92) {
       html, body { width:210mm; height:297mm; }
       .calendar-container-scaling, .calendar, #root, main { width:210mm !important; max-width:210mm !important; }
       /* Force 2 columns for week view in print */
-      .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+      .grid[class*="grid-cols-"] {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       }
       /* aggressive but proportional font reduction */
