@@ -111,9 +111,18 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       const xOffset = (pdfWidth - imgWidth) / 2;
       pdf.addImage(imgData, 'PNG', xOffset, 10, imgWidth, imgHeight);
       
-      const monthNames = ['січень', 'лютий', 'березень', 'квітень', 'травень', 'червень', 'липень', 'серпень', 'вересень', 'жовтень', 'листопад', 'грудень'];
-      const monthName = monthNames[currentDate.getMonth()];
-      pdf.save(`Список проповідників_${monthName}_${currentDate.getFullYear()}.pdf`);
+      const monthNames = ['січ.', 'лют.', 'берез.', 'квіт.', 'трав.', 'черв.', 'лип.', 'серп.', 'верес.', 'жовт.', 'листоп.', 'груд.'];
+      const startMonth = currentDate.getMonth();
+      const startYear = currentDate.getFullYear();
+      const endDate = new Date(startYear, startMonth + 1, 1);
+      const endMonth = endDate.getMonth();
+      const endYear = endDate.getFullYear();
+      
+      const startMonthName = monthNames[startMonth];
+      const endMonthName = monthNames[endMonth];
+      
+      const fileName = `ЗАЛУЧ. ПРОПОВ._${startMonthName}${startYear} - ${endMonthName}${endYear}.pdf`;
+      pdf.save(fileName);
 
       // Restore original styles
       tableElement.style.maxHeight = originalMaxHeight;

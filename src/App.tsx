@@ -3047,7 +3047,7 @@ export default function App() {
                                       });
                                       cols.push(
                                         <td key={`total-${year}`} className="py-0.5 px-1 text-center text-slate-800 print:text-black font-bold font-mono bg-slate-100 print:bg-slate-100 border-r last:border-r-0 border-slate-300 print:border-black print:print-thin-border w-8 print:min-w-[2rem]">
-                                          {yearTotal > 0 ? yearTotal : <span className="opacity-20 print:opacity-30">-</span>}
+                                          {Object.keys(pStats).filter(m => m.startsWith(year)).reduce((sum, m) => sum + (pStats[m] || 0), 0) > 0 ? Object.keys(pStats).filter(m => m.startsWith(year)).reduce((sum, m) => sum + (pStats[m] || 0), 0) : <span className="opacity-20 print:opacity-30">-</span>}
                                         </td>
                                       );
                                       return cols;
