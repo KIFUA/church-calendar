@@ -1052,10 +1052,28 @@ export default function App() {
   const [showPreacherTable, setShowPreacherTable] = useState(false);
   
   const updateThemeFontSize = async (delta: number) => {
-    const newSize = Math.max(8, Math.min(48, (appSettings.themeFontSize || 14) + delta));
-    setAppSettings(prev => ({ ...prev, themeFontSize: newSize }));
-    if (isAdminAuthenticated && db) {
-      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { themeFontSize: newSize }, { merge: true });
+    // Resolve current size to adjust from
+    const currentData = monthlyThemes[currentMonthKey] || {};
+    const styleData = typeof currentData === 'string' ? {} : currentData;
+    const currentSize = styleData.size || appSettings.themeFontSize || 14;
+    const newSize = Math.max(8, Math.min(48, currentSize + delta));
+
+    // If we have a theme object, we update its specific size
+    if (currentMonthKey && currentData && typeof currentData === 'object') {
+      const updatedTheme = { ...currentData, size: newSize };
+      setMonthlyThemes(prev => ({ ...prev, [currentMonthKey]: updatedTheme }));
+      if (isAdminAuthenticated && db) {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'monthly_themes', currentMonthKey), { 
+          ...updatedTheme,
+          size: newSize 
+        }, { merge: true });
+      }
+    } else {
+      // Otherwise fallback to global settings
+      setAppSettings(prev => ({ ...prev, themeFontSize: newSize }));
+      if (isAdminAuthenticated && db) {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { themeFontSize: newSize }, { merge: true });
+      }
     }
   };
 
@@ -2350,7 +2368,7 @@ export default function App() {
               <div 
                 className="font-serif whitespace-pre-wrap font-medium"
                 style={{ 
-                  fontSize: `${(currentThemeStyle.size && currentThemeStyle.size >= 14) ? currentThemeStyle.size : (appSettings.themeFontSize && appSettings.themeFontSize >= 14 ? appSettings.themeFontSize : 14)}px`, 
+                  fontSize: `${currentThemeStyle.size || appSettings.themeFontSize || 14}px`, 
                   lineHeight: '1.25',
                   color: currentThemeStyle.color || '#3d2514',
                   textAlign: currentThemeStyle.align || 'center',
@@ -3986,7 +4004,7 @@ export default function App() {
                   color: themeColor,
                   fontFamily: '"Izhitsa", "Monomakh", "Ruslan Display", "Kurale", "Alice", "Cormorant Garamond", serif'
                 }}
-                className="w-full h-48 bg-white border border-slate-300 rounded-2xl p-4 text-sm md:text-base outline-none focus:border-red-500/50 transition-colors resize-none shadow-inner font-serif"
+                className="w-full h-48 bg-white border border-slate-300 rounded-2xl p-4 outline-none focus:border-red-500/50 transition-colors resize-none shadow-inner font-serif"
               />
               <div className="mt-6 flex gap-3">
                 <button 
