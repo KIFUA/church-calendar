@@ -992,6 +992,7 @@ export default function App() {
     ]
   });
   const [isEditingTheme, setIsEditingTheme] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState<'name' | 'appearance' | 'access' | 'fields'>('name');
   const [themeText, setThemeText] = useState("");
@@ -999,8 +1000,15 @@ export default function App() {
   const [themeWeight, setThemeWeight] = useState<'400'|'500'|'600'|'700'>('500');
   const [themeColor, setThemeColor] = useState<string>('#5c3a21');
   const [themeFontSizeLocal, setThemeFontSizeLocal] = useState<number>(13);
-  const [statsStartMonth, setStatsStartMonth] = useState("");
-  const [statsEndMonth, setStatsEndMonth] = useState("");
+  const [statsStartMonth, setStatsStartMonth] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 2);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
+  const [statsEndMonth, setStatsEndMonth] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [themeTransform, setThemeTransform] = useState<'uppercase'|'none'>('uppercase');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<'admin' | 'preacher_manager' | 'singer_manager' | null>(null);
@@ -1620,6 +1628,84 @@ export default function App() {
     setViewMode('day');
     setSelectedDate(today);
     setIsHamburgerOpen(false);
+  };
+
+  const handleStatsDownloadPdf = async () => {
+    const tableElement = document.getElementById('stats-pdf-container');
+    if (!tableElement) return;
+
+    setIsGeneratingPdf(true);
+    
+    try {
+      // Hide buttons for cleaner capture
+      const buttons = document.querySelectorAll('.no-print-pdf');
+      Array.from(buttons).forEach(b => (b as HTMLElement).style.display = 'none');
+
+      // Increase delay to let browser apply styles fully
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const imgData = await domtoimage.toPng(tableElement, {
+        bgcolor: '#ffffff',
+        width: tableElement.scrollWidth,
+        height: tableElement.scrollHeight,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        },
+        filter: (node) => {
+          // Filter out elements with 'no-print-pdf' class
+          if (node.classList && node.classList.contains('no-print-pdf')) {
+            return false;
+          }
+          return true;
+        }
+      });
+      
+      // Calculate PDF dimensions (A4 landscape)
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      const img = new Image();
+      img.src = imgData;
+      await new Promise(resolve => { img.onload = resolve; });
+
+      let imgWidth = pdfWidth - 20; 
+      let imgHeight = (img.height * imgWidth) / img.width;
+      
+      if (imgHeight > pdfHeight - 20) {
+        imgHeight = pdfHeight - 20;
+        imgWidth = (img.width * imgHeight) / img.height;
+      }
+      
+      const xOffset = (pdfWidth - imgWidth) / 2;
+      pdf.addImage(imgData, 'PNG', xOffset, 10, imgWidth, imgHeight);
+      
+      const fileName = `ЗАЛУЧ. ПРОПОВІДНИКІВ_АРХІВ.pdf`;
+      const pdfOutput = pdf.output('blob');
+      const url = URL.createObjectURL(pdfOutput);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error generating PDF', error);
+      alert('Помилка при створенні PDF');
+    } finally {
+      // Restore buttons
+      const buttons = document.querySelectorAll('.no-print-pdf');
+      Array.from(buttons).forEach(b => (b as HTMLElement).style.display = '');
+      setIsGeneratingPdf(false);
+    }
   };
 
   const [isGeneratingWeekPdf, setIsGeneratingWeekPdf] = useState(false);
@@ -2867,7 +2953,7 @@ export default function App() {
                        </button>
                      )}
                    </div>
-                   <button onClick={() => window.print()} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-[0.625rem] font-bold shadow hover:bg-blue-500 uppercase flex items-center gap-2"><span>PDF / Друк</span></button>
+                   <button onClick={handleStatsDownloadPdf} disabled={isGeneratingPdf} className={`no-print-pdf px-4 py-2 bg-blue-600 text-white rounded-lg text-[0.625rem] font-bold shadow hover:bg-blue-500 uppercase flex items-center gap-2 ${isGeneratingPdf ? 'opacity-50' : ''}`}><span>PDF / Друк</span></button>
                  </div>
                </div>
                

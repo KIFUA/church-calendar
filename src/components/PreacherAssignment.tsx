@@ -35,6 +35,10 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
     setIsGeneratingPdf(true);
     
     try {
+      // Hide buttons for cleaner capture
+      const buttons = document.querySelectorAll('.no-print-pdf');
+      Array.from(buttons).forEach(b => (b as HTMLElement).style.display = 'none');
+
       const originalMaxHeight = tableElement.style.maxHeight;
       const originalOverflow = tableElement.style.overflow;
       const originalScrollTop = tableElement.scrollTop;
@@ -147,6 +151,9 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       console.error('Error generating PDF', error);
       alert('Помилка при створенні PDF');
     } finally {
+      // Restore buttons
+      const buttons = document.querySelectorAll('.no-print-pdf');
+      Array.from(buttons).forEach(b => (b as HTMLElement).style.display = '');
       setIsGeneratingPdf(false);
     }
   };
