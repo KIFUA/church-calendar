@@ -355,14 +355,14 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       </div>
       
       <div className="flex gap-4 flex-1 min-h-0 overflow-hidden print:block print:overflow-visible">
-        <div className="w-full flex flex-col flex-1 min-h-0 overflow-hidden print:block print:overflow-visible">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden print:block print:overflow-visible">
           {/* Таблиця */}
-          <div ref={tableContainerRef} className="text-black text-[0.625rem] md:text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative flex-1 print:max-h-none print:overflow-visible print:border-none print:rounded-none">
+          <div ref={tableContainerRef} className="text-black text-[0.625rem] md:text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative print:max-h-none print:overflow-visible print:border-none print:rounded-none">
             <table className="w-full border-separate border-spacing-0 min-w-max print:border-collapse print:min-w-full">
               <thead>
                 <tr>
-                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-0 z-[60] text-xs">№</th>
-                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-8 z-[60] text-xs">
+                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-0 z-[60] text-[20px]">№</th>
+                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-8 z-[60] text-[20px]">
                     <div className="whitespace-nowrap px-2 text-left">Прізвище, ім'я</div>
                   </th>
                   {filteredDays.map((d) => {
@@ -377,10 +377,10 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                         onClick={() => setSelectedDate(d)}
                       >
                         <div className="min-w-[2.5rem] flex flex-col items-center justify-center gap-0 py-1">
-                          <span className="text-xs font-black text-slate-900 leading-none">
+                          <span className="text-[20px] font-black text-slate-900 leading-none">
                             {d.getDate()}
                           </span>
-                          <span className="text-[0.5625rem] font-bold text-slate-500 uppercase leading-none tracking-tighter">
+                          <span className="text-[0.6875rem] font-bold text-slate-500 uppercase leading-none tracking-tighter">
                             {['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][d.getDay()]}
                           </span>
                         </div>
@@ -395,15 +395,15 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                     <tr>
                       <td 
                         colSpan={2 + filteredDays.length} 
-                        className="bg-slate-300 font-bold p-2 border-b-2 border-slate-400 text-black sticky top-[2.375rem] z-[55] shadow-sm text-xs"
+                        className="bg-slate-300 font-bold p-2 border-b-2 border-slate-400 text-black sticky top-[2.975rem] z-[55] shadow-sm text-[20px]"
                       >
                         {group.label}
                       </td>
                     </tr>
                     {group.items.map((item: string, iIdx: number) => (
                       <tr key={item}>
-                        <td className="border-b border-r border-slate-400 p-2 text-center sticky left-0 z-20 bg-white text-xs">{iIdx + 1}</td>
-                        <td className="border-b border-r border-slate-400 p-2 sticky left-8 z-20 bg-white whitespace-nowrap font-bold text-xs">{item}</td>
+                        <td className="border-b border-r border-slate-400 p-2 text-center sticky left-0 z-20 bg-white text-[20px]">{iIdx + 1}</td>
+                        <td className="border-b border-r border-slate-400 p-2 sticky left-8 z-20 bg-white whitespace-nowrap font-bold text-[20px]">{item}</td>
                         {filteredDays.map((d) => {
                           const dateKey = formatDateKey(d);
                           const event = events.find(e => e.id === dateKey);
@@ -444,7 +444,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                           return (
                             <td 
                               key={d.toISOString()} 
-                              className={`border-b border-r border-slate-400 p-2 min-w-[2.5rem] cursor-pointer hover:bg-slate-100 text-center font-bold text-xs ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''} ${shouldDarken ? 'bg-slate-300' : ''}`} 
+                              className={`border-b border-r border-slate-400 p-2 min-w-[2.5rem] cursor-pointer hover:bg-slate-100 text-center font-bold text-[20px] ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''} ${shouldDarken ? 'bg-slate-300' : ''}`} 
                               style={{ backgroundColor: isSelected ? undefined : (shouldDarken ? '#94a3b8' : getDayStyle(d.getDay())) }} 
                               onClick={(e) => handleCellClick(item, d, e)}
                             >

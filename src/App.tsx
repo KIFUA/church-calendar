@@ -2886,7 +2886,7 @@ export default function App() {
                            const mKey = dayInfo.id.substring(0, 7);
                            if (statsStartMonth && mKey < statsStartMonth) return;
                            if (statsEndMonth && mKey > statsEndMonth) return;
-                           if (mKey < currentMonthKey) {
+                           if (mKey <= currentMonthKey) {
                              archiveYearsSet.add(mKey.split('-')[0]);
                            }
                          });
@@ -2899,7 +2899,7 @@ export default function App() {
                              const mKey = year + '-' + mo;
                              if (statsStartMonth && mKey < statsStartMonth) return false;
                              if (statsEndMonth && mKey > statsEndMonth) return false;
-                             if (mKey >= currentMonthKey) return false;
+                             if (mKey > currentMonthKey) return false;
                              return true;
                            });
                          });
@@ -2976,7 +2976,7 @@ export default function App() {
                            const mKey = dayInfo.id.substring(0, 7);
                            if (statsStartMonth && mKey < statsStartMonth) return;
                            if (statsEndMonth && mKey > statsEndMonth) return;
-                           if (mKey < currentMonthKey) {
+                           if (mKey <= currentMonthKey) {
                              archiveYearsSet.add(mKey.split('-')[0]);
                              dayInfo.leads?.forEach((lead: string) => {
                                const preacherName = lead.includes('|') ? lead.split('|')[3] : lead;
@@ -2999,7 +2999,7 @@ export default function App() {
                              const mKey = `${year}-${mo}`;
                              if (statsStartMonth && mKey < statsStartMonth) return false;
                              if (statsEndMonth && mKey > statsEndMonth) return false;
-                             if (mKey >= currentMonthKey) return false;
+                             if (mKey > currentMonthKey) return false;
                              return true;
                            });
                          });
