@@ -1002,6 +1002,7 @@ export default function App() {
   const [themeWeight, setThemeWeight] = useState<'400'|'500'|'600'|'700'>('500');
   const [themeColor, setThemeColor] = useState<string>('#5c3a21');
   const [themeFontSizeLocal, setThemeFontSizeLocal] = useState<number>(14);
+  const [themeBannerType, setThemeBannerType] = useState<'parchment'|'schematic'>('parchment');
   const [statsStartMonth, setStatsStartMonth] = useState(() => {
     const d = new Date();
     d.setMonth(d.getMonth() - 2);
@@ -1381,7 +1382,8 @@ export default function App() {
         weight: themeWeight,
         size: themeFontSizeLocal,
         color: themeColor,
-        transform: themeTransform
+        transform: themeTransform,
+        bannerType: themeBannerType
       };
 
       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'monthly_themes', monthKey), themeData, { merge: true });
@@ -1401,6 +1403,7 @@ export default function App() {
     setThemeFontSizeLocal(styleData.size || 14);
     setThemeColor(styleData.color || '#5c3a21');
     setThemeTransform(styleData.transform || 'uppercase');
+    setThemeBannerType(styleData.bannerType || 'parchment');
     setIsEditingTheme(true);
   };
 
@@ -2349,7 +2352,12 @@ export default function App() {
     return (
       <div 
         className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[80%] sm:w-[60%] md:w-[40%] lg:max-w-[18.75rem] mx-auto min-h-[35px] sm:min-h-[45px] md:min-h-[50px]`}
-        style={{
+        style={currentThemeStyle.bannerType === 'schematic' ? {
+          backgroundColor: '#f3e5d8',
+          border: '1px solid #dcd0c0',
+          borderRadius: '0.4rem',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+        } : {
           backgroundImage: `url("/parchment.png")`,
           backgroundSize: '100% 100%',
           backgroundPosition: 'center',
@@ -3988,6 +3996,21 @@ export default function App() {
                   onChange={(e) => setThemeColor(e.target.value)}
                   className="w-5 h-5 rounded cursor-pointer bg-transparent border-0 p-0"
                 />
+              </div>
+
+              <div className="flex bg-slate-800 rounded-lg p-1">
+                <button 
+                  onClick={() => setThemeBannerType('parchment')} 
+                  className={`px-2 py-1 rounded-md text-[0.625rem] font-black uppercase tracking-tight transition-colors ${themeBannerType === 'parchment' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Пергамент
+                </button>
+                <button 
+                  onClick={() => setThemeBannerType('schematic')} 
+                  className={`px-2 py-1 rounded-md text-[0.625rem] font-black uppercase tracking-tight transition-colors ${themeBannerType === 'schematic' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Схема
+                </button>
               </div>
             </div>
 
