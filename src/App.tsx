@@ -2961,7 +2961,7 @@ export default function App() {
                  <h2 className="text-black text-xl font-black uppercase text-center">Архів: Залучення проповідників</h2>
                </div>
  
-               <div className="overflow-x-auto print:overflow-visible custom-scrollbar border border-slate-400 print:border-none shadow-sm print:shadow-none rounded-lg bg-white">
+               <div id="stats-pdf-container" className="overflow-x-auto print:overflow-visible custom-scrollbar border border-slate-400 print:border-none shadow-sm print:shadow-none rounded-lg bg-white">
                  <table className="w-[max-content] print:w-auto text-left text-[0.6875rem] text-slate-700 print:text-black border-collapse print-no-stretch">
                    <thead className="bg-slate-300 print:bg-slate-200 text-slate-800">
                      {(() => {
