@@ -1,5 +1,5 @@
 import React from 'react';
-import { Printer } from 'lucide-react';
+import { Download } from 'lucide-react';
 import domtoimage from 'dom-to-image';
 import { jsPDF } from 'jspdf';
 import { DayView } from './DayView';
@@ -359,7 +359,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
               className={`p-[0.5em] bg-slate-200 hover:bg-slate-300 text-slate-700 text-[0.5em] rounded-lg transition-all flex items-center justify-center aspect-square ${isGeneratingPdf ? 'opacity-50 cursor-not-allowed' : ''}`}
               title="Завантажити PDF"
             >
-              <Printer size="1.5em" className={isGeneratingPdf ? 'animate-pulse' : ''} />
+              <Download size="1.5em" className={isGeneratingPdf ? 'animate-pulse' : ''} />
             </button>
             <button 
               onClick={onAddThemeText}
