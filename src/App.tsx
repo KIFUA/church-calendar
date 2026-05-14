@@ -2331,15 +2331,12 @@ export default function App() {
 
     return (
       <div 
-        className={`relative flex items-center justify-center p-4 transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-fit max-w-[95%] lg:max-w-[62.5rem] mx-auto`}
+        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-full max-w-[95%] lg:max-w-[70rem] mx-auto min-h-[180px]`}
         style={{
-          backgroundColor: '#f4ebd0',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E")`,
-          boxShadow: 'inset 0 0 40px rgba(184, 134, 11, 0.15), inset 0 0 10px rgba(139, 69, 19, 0.1), 0 4px 6px rgba(0,0,0,0.05)',
-          border: '1px solid rgba(184, 134, 11, 0.2)',
-          borderRadius: '2px 10px 2px 10px',
-          borderLeft: '4px solid rgba(139, 69, 19, 0.3)',
-          borderRight: '4px solid rgba(139, 69, 19, 0.3)',
+          backgroundImage: `url("/parchment.png")`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
         }}
         onClick={() => {
           if (activeTab === 'admin' && userRole === 'admin') {
@@ -2347,7 +2344,7 @@ export default function App() {
           }
         }}
       >
-        <div className="relative z-10 flex flex-col items-center justify-center text-center">
+        <div className="relative z-10 px-24 py-12 text-center flex items-center justify-center max-w-[75%] min-h-[140px]">
           {currentThemeText ? (
             <div className="relative group/text inline-block">
               <div 
@@ -2355,12 +2352,12 @@ export default function App() {
                 style={{ 
                   fontSize: `${currentThemeStyle.size || appSettings.themeFontSize || 13}px`, 
                   lineHeight: '1.25',
-                  color: currentThemeStyle.color || '#5c3a21',
+                  color: currentThemeStyle.color || '#3d2514',
                   textAlign: currentThemeStyle.align || 'center',
-                  fontWeight: currentThemeStyle.weight || '400',
+                  fontWeight: currentThemeStyle.weight || '600',
                   fontStyle: 'normal',
                   textTransform: currentThemeStyle.transform || 'uppercase',
-                  textShadow: '0 1px 1px rgba(255,255,255,0.4)',
+                  textShadow: '0.5px 0.5px 0px rgba(255,255,255,0.3)',
                   fontFamily: '"Izhitsa", "Monomakh", "Ruslan Display", "Kurale", "Alice", "Cormorant Garamond", serif',
                 }}
               >
