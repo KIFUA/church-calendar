@@ -59,6 +59,7 @@ import { PreacherAssignment } from './components/PreacherAssignment';
 import domtoimage from 'dom-to-image';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, handleSaveSettings, ColorPicker, X, initialTab = 'name' }: any) => {
   const activeTab = initialTab;
@@ -1631,42 +1632,65 @@ export default function App() {
     setIsHamburgerOpen(false);
   };
 
-  const handleStatsDownloadPdf = async () => {
-    const tableElement = document.getElementById('stats-pdf-container') as HTMLTableElement;
-    if (!tableElement) return;
-
-    setIsGeneratingPdf(true);
+  const getStatsDataForPdf = () => {
+    const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const archiveYearsSet = new Set<string>();
+    const stats: Record<string, Record<string, number>> = {};
     
-    try {
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // Add title
-      pdf.setFontSize(16);
-      pdf.text('АРХІВ: ЗАЛУЧЕННЯ ПРОПОВІДНИКІВ', pdf.internal.pageSize.getWidth() / 2, 10, { align: 'center' });
-      
-      // Use jspdf-autotable
-      (pdf as any).autoTable({
-        html: '#stats-pdf-container table',
-        startY: 20,
-        theme: 'grid',
-        styles: { fontSize: 8, font: 'helvetica' },
-        headStyles: { fillColor: [200, 200, 200], textColor: [0, 0, 0] },
-      });
-      
-      const fileName = `ЗАЛУЧ. ПРОПОВІДНИКІВ_АРХІВ.pdf`;
-      pdf.save(fileName);
+    const preachersOnly = staffGroups
+      .filter((g: any) => g.label === "НА ВСІ ДНІ" || g.label.includes("БУДНІ"))
+      .map((g: any) => ({
+        ...g,
+        items: [...(g.items || [])].sort((a: any, b: any) => a.localeCompare(b))
+      }))
+      .filter((g: any) => g.items.length > 0);
 
-    } catch (error) {
-      console.error('Error generating PDF', error);
-      alert('Помилка при створенні PDF');
-    } finally {
-      setIsGeneratingPdf(false);
-    }
+    const preachersList = Array.from(new Set(
+      preachersOnly.flatMap((g: any) => g.items)
+    ));
+    
+    events.forEach(dayInfo => {
+      if (!dayInfo || !dayInfo.id || dayInfo.id.length < 7 || dayInfo.id.startsWith('template')) return;
+      const mKey = dayInfo.id.substring(0, 7);
+      if (statsStartMonth && mKey < statsStartMonth) return;
+      if (statsEndMonth && mKey > statsEndMonth) return;
+      if (mKey <= currentMonthKey) {
+        archiveYearsSet.add(mKey.split('-')[0]);
+        dayInfo.leads?.forEach((lead: string) => {
+          const preacherName = lead.includes('|') ? lead.split('|')[3] : lead;
+          if (preacherName && preachersList.includes(preacherName)) {
+            if (!stats[preacherName]) stats[preacherName] = {};
+            stats[preacherName][mKey] = (stats[preacherName][mKey] || 0) + 1;
+          }
+        });
+      }
+    });
+    
+    if (archiveYearsSet.size === 0) archiveYearsSet.add(today.getFullYear().toString());
+    const archiveYears = Array.from(archiveYearsSet).sort();
+    const ALL_MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+    
+    const activeMonthsByYear: Record<string, string[]> = {};
+    archiveYears.forEach(year => {
+      activeMonthsByYear[year] = ALL_MONTHS.filter(mo => {
+        const mKey = `${year}-${mo}`;
+        if (statsStartMonth && mKey < statsStartMonth) return false;
+        if (statsEndMonth && mKey > statsEndMonth) return false;
+        if (mKey > currentMonthKey) return false;
+        return true;
+      });
+    });
+    const filteredArchiveYears = archiveYears.filter(year => activeMonthsByYear[year].length > 0);
+
+    return { preachersOnly, filteredArchiveYears, activeMonthsByYear, stats };
   };
+
+  const handleStatsDownloadPdf = () => {
+    // We use window.print() and instruct the user to select "Save as PDF" 
+    // to guarantee perfect quality and character rendering.
+    window.print();
+  };
+
 
   const [isGeneratingWeekPdf, setIsGeneratingWeekPdf] = useState(false);
 
