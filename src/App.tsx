@@ -1381,7 +1381,7 @@ export default function App() {
     const styleData = typeof data === 'string' ? {} : data;
     setThemeAlign(styleData.align || 'center');
     setThemeWeight(styleData.weight || '500');
-    setThemeFontSizeLocal(styleData.size || (appSettings.themeFontSize && appSettings.themeFontSize > 8 ? appSettings.themeFontSize : 14));
+    setThemeFontSizeLocal(styleData.size || 14);
     setThemeColor(styleData.color || '#5c3a21');
     setThemeTransform(styleData.transform || 'uppercase');
     setIsEditingTheme(true);
@@ -2331,7 +2331,7 @@ export default function App() {
 
     return (
       <div 
-        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[70%] sm:w-[50%] lg:max-w-[25rem] mx-auto min-h-[60px] sm:min-h-[80px] md:min-h-[90px]`}
+        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[35%] sm:w-[25%] lg:max-w-[12.5rem] mx-auto min-h-[30px] sm:min-h-[40px] md:min-h-[45px]`}
         style={{
           backgroundImage: `url("/parchment.png")`,
           backgroundSize: '100% 100%',
@@ -2344,13 +2344,13 @@ export default function App() {
           }
         }}
       >
-        <div className="relative z-10 px-4 py-3 sm:px-8 sm:py-4 md:px-12 md:py-6 text-center flex items-center justify-center w-full max-w-[85%] sm:max-w-[75%] min-h-[50px] sm:min-h-[70px]">
+        <div className="relative z-10 px-2 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 text-center flex items-center justify-center w-full max-w-[85%] sm:max-w-[75%] min-h-[25px] sm:min-h-[35px]">
           {currentThemeText ? (
             <div className="relative group/text inline-block">
               <div 
                 className="font-serif whitespace-pre-wrap font-medium"
                 style={{ 
-                  fontSize: `${(currentThemeStyle.size && currentThemeStyle.size > 8) ? currentThemeStyle.size : (appSettings.themeFontSize && appSettings.themeFontSize > 8 ? appSettings.themeFontSize : 14)}px`, 
+                  fontSize: `${(currentThemeStyle.size && currentThemeStyle.size >= 14) ? currentThemeStyle.size : (appSettings.themeFontSize && appSettings.themeFontSize >= 14 ? appSettings.themeFontSize : 14)}px`, 
                   lineHeight: '1.25',
                   color: currentThemeStyle.color || '#3d2514',
                   textAlign: currentThemeStyle.align || 'center',
