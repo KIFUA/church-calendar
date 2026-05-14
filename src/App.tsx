@@ -1362,21 +1362,6 @@ export default function App() {
   const saveTheme = async (monthKey, text) => {
     // Якщо ми не в режимі адміна або база не ініціалізована - попереджаємо
     if (!isAdminAuthenticated || !db) {
-      setMonthlyThemes(prev => ({ ...prev, [monthKey]: { ...prev[monthKey], theme: text || "" } }));
-      setIsEditingTheme(false);
-      alert("Увага: Ви не авторизовані або база не підключена. Зміни збережено лише тимчасово (до оновлення сторінки).");
-      return;
-    }
-
-    try {
-      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'monthly_themes', monthKey), { 
-        theme: text || "",
-        align: themeAlign,
-        weight: themeWeight,
-        size: themeFontSizeLocal,
-        color: themeColor,
-        transform: themeTransform
-      }, { merge: true });
       setMonthlyThemes(prev => ({ ...prev, [monthKey]: { 
         theme: text || "",
         align: themeAlign,
@@ -1386,10 +1371,24 @@ export default function App() {
         transform: themeTransform
       } }));
       setIsEditingTheme(false);
-      alert("Текст збережено успішно!");
+      return;
+    }
+
+    try {
+      const themeData = { 
+        theme: text || "",
+        align: themeAlign,
+        weight: themeWeight,
+        size: themeFontSizeLocal,
+        color: themeColor,
+        transform: themeTransform
+      };
+
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'monthly_themes', monthKey), themeData, { merge: true });
+      setMonthlyThemes(prev => ({ ...prev, [monthKey]: themeData }));
+      setIsEditingTheme(false);
     } catch (err) {
       console.error("Error saving theme: ", err);
-      alert("Помилка збереження на сервері: " + err.message);
     }
   };
 
@@ -2349,7 +2348,7 @@ export default function App() {
 
     return (
       <div 
-        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[35%] sm:w-[25%] lg:max-w-[12.5rem] mx-auto min-h-[30px] sm:min-h-[40px] md:min-h-[45px]`}
+        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[45%] sm:w-[35%] lg:max-w-[15.625rem] mx-auto min-h-[30px] sm:min-h-[40px] md:min-h-[45px]`}
         style={{
           backgroundImage: `url("/parchment.png")`,
           backgroundSize: '100% 100%',
@@ -2369,7 +2368,7 @@ export default function App() {
                 className="font-serif whitespace-pre-wrap font-medium"
                 style={{ 
                   fontSize: `${currentThemeStyle.size || appSettings.themeFontSize || 14}px`, 
-                  lineHeight: '1.25',
+                  lineHeight: '1.1',
                   color: currentThemeStyle.color || '#3d2514',
                   textAlign: currentThemeStyle.align || 'center',
                   fontWeight: currentThemeStyle.weight || '600',
@@ -2377,6 +2376,8 @@ export default function App() {
                   textTransform: currentThemeStyle.transform || 'uppercase',
                   textShadow: '0.5px 0.5px 0px rgba(255,255,255,0.3)',
                   fontFamily: '"Izhitsa", "Monomakh", "Ruslan Display", "Kurale", "Alice", "Cormorant Garamond", serif',
+                  wordBreak: 'break-word',
+                  hyphens: 'auto'
                 }}
               >
                 {currentThemeText.trim()}
