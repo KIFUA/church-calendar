@@ -1688,7 +1688,15 @@ export default function App() {
   const handleStatsDownloadPdf = () => {
     // We use window.print() and instruct the user to select "Save as PDF" 
     // to guarantee perfect quality and character rendering.
+    const originalTitle = document.title;
+    document.title = 'ЗАЛУЧ. ПРОПОВІДНИКІВ_АРХІВ';
+    
     window.print();
+    
+    // Switch back to original title after short delay
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
   };
 
 
