@@ -58,6 +58,7 @@ import {
 import { PreacherAssignment } from './components/PreacherAssignment';
 import domtoimage from 'dom-to-image';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, handleSaveSettings, ColorPicker, X, initialTab = 'name' }: any) => {
   const activeTab = initialTab;
@@ -1631,42 +1632,12 @@ export default function App() {
   };
 
   const handleStatsDownloadPdf = async () => {
-    const tableElement = document.getElementById('stats-pdf-container');
+    const tableElement = document.getElementById('stats-pdf-container') as HTMLTableElement;
     if (!tableElement) return;
 
     setIsGeneratingPdf(true);
     
     try {
-      // Hide buttons for cleaner capture
-      const buttons = document.querySelectorAll('.no-print-pdf');
-      Array.from(buttons).forEach(b => (b as HTMLElement).style.display = 'none');
-
-      // Increase delay to let browser apply styles fully
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Use html2pdf or similar for better quality? 
-      // For now, let's fix the screen capture method to not be a screenshot but capture the HTML directly if possible.
-      // Actually, since I have jsPDF and dom-to-image, I will improve text rendering by increasing scale.
-      
-      const imgData = await domtoimage.toPng(tableElement, {
-        bgcolor: '#ffffff',
-        width: tableElement.scrollWidth,
-        height: tableElement.scrollHeight,
-        style: {
-          transform: 'scale(2)', // Keep high scale
-          transformOrigin: 'top left',
-          width: tableElement.scrollWidth + 'px',
-          height: tableElement.scrollHeight + 'px'
-        },
-        filter: (node) => {
-          if (node.classList && node.classList.contains('no-print-pdf')) {
-            return false;
-          }
-          return true;
-        }
-      });
-      
-      // Calculate PDF dimensions (A4 landscape)
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
@@ -1675,46 +1646,24 @@ export default function App() {
       
       // Add title
       pdf.setFontSize(16);
-      pdf.text('Архів: Залучення проповідників', pdf.internal.pageSize.getWidth() / 2, 10, { align: 'center' });
+      pdf.text('АРХІВ: ЗАЛУЧЕННЯ ПРОПОВІДНИКІВ', pdf.internal.pageSize.getWidth() / 2, 10, { align: 'center' });
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight() - 20; // Leave space for title
-      
-      const img = new Image();
-      img.src = imgData;
-      await new Promise(resolve => { img.onload = resolve; });
-
-      // Scale to fit content properly based on content (not just width)
-      // Since it's landscape, try to fit width first
-      let imgWidth = pdfWidth - 20; 
-      let imgHeight = (img.height * imgWidth) / img.width;
-      
-      if (imgHeight > pdfHeight) {
-        imgHeight = pdfHeight;
-        imgWidth = (img.width * imgHeight) / img.height;
-      }
-      
-      const xOffset = (pdfWidth - imgWidth) / 2;
-      pdf.addImage(imgData, 'PNG', xOffset, 15, imgWidth, imgHeight);
+      // Use jspdf-autotable
+      (pdf as any).autoTable({
+        html: '#stats-pdf-container table',
+        startY: 20,
+        theme: 'grid',
+        styles: { fontSize: 8, font: 'helvetica' },
+        headStyles: { fillColor: [200, 200, 200], textColor: [0, 0, 0] },
+      });
       
       const fileName = `ЗАЛУЧ. ПРОПОВІДНИКІВ_АРХІВ.pdf`;
-      const pdfOutput = pdf.output('blob');
-      const url = URL.createObjectURL(pdfOutput);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      pdf.save(fileName);
 
     } catch (error) {
       console.error('Error generating PDF', error);
       alert('Помилка при створенні PDF');
     } finally {
-      // Restore buttons
-      const buttons = document.querySelectorAll('.no-print-pdf');
-      Array.from(buttons).forEach(b => (b as HTMLElement).style.display = '');
       setIsGeneratingPdf(false);
     }
   };
