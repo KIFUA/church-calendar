@@ -982,7 +982,7 @@ export default function App() {
     subtitle: "УЦХВЄ м. Івано-Франківська", 
     logo: null,
     themeBackground: 'none',
-    themeFontSize: 16,
+    themeFontSize: 14,
     backgroundColor: '#1e293b',
     titleColor: '#ffffff',
     subtitleColor: '#94a3b8',
@@ -1001,7 +1001,7 @@ export default function App() {
   const [themeAlign, setThemeAlign] = useState<'left'|'center'|'right'|'justify'>('center');
   const [themeWeight, setThemeWeight] = useState<'400'|'500'|'600'|'700'>('500');
   const [themeColor, setThemeColor] = useState<string>('#5c3a21');
-  const [themeFontSizeLocal, setThemeFontSizeLocal] = useState<number>(13);
+  const [themeFontSizeLocal, setThemeFontSizeLocal] = useState<number>(14);
   const [statsStartMonth, setStatsStartMonth] = useState(() => {
     const d = new Date();
     d.setMonth(d.getMonth() - 2);
@@ -1052,7 +1052,7 @@ export default function App() {
   const [showPreacherTable, setShowPreacherTable] = useState(false);
   
   const updateThemeFontSize = async (delta: number) => {
-    const newSize = Math.max(8, Math.min(48, (appSettings.themeFontSize || 16) + delta));
+    const newSize = Math.max(8, Math.min(48, (appSettings.themeFontSize || 14) + delta));
     setAppSettings(prev => ({ ...prev, themeFontSize: newSize }));
     if (isAdminAuthenticated && db) {
       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { themeFontSize: newSize }, { merge: true });
@@ -1146,9 +1146,9 @@ export default function App() {
 
     const qThemes = collection(db, 'artifacts', appId, 'public', 'data', 'monthly_themes');
     const unsubscribeThemes = onSnapshot(qThemes, (snapshot) => {
-      const themes: Record<string, string> = {};
+      const themes: Record<string, any> = {};
       snapshot.docs.forEach(d => {
-        themes[d.id] = d.data().theme || "";
+        themes[d.id] = d.data();
       });
       setMonthlyThemes(themes);
     }, (err) => console.error(err));
@@ -1381,7 +1381,7 @@ export default function App() {
     const styleData = typeof data === 'string' ? {} : data;
     setThemeAlign(styleData.align || 'center');
     setThemeWeight(styleData.weight || '500');
-    setThemeFontSizeLocal(styleData.size || appSettings.themeFontSize || 13);
+    setThemeFontSizeLocal(styleData.size || (appSettings.themeFontSize && appSettings.themeFontSize > 8 ? appSettings.themeFontSize : 14));
     setThemeColor(styleData.color || '#5c3a21');
     setThemeTransform(styleData.transform || 'uppercase');
     setIsEditingTheme(true);
@@ -2331,10 +2331,10 @@ export default function App() {
 
     return (
       <div 
-        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-full max-w-[95%] lg:max-w-[70rem] mx-auto min-h-[180px]`}
+        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[70%] sm:w-[50%] lg:max-w-[25rem] mx-auto min-h-[60px] sm:min-h-[80px] md:min-h-[90px]`}
         style={{
           backgroundImage: `url("/parchment.png")`,
-          backgroundSize: 'contain',
+          backgroundSize: '100% 100%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
         }}
@@ -2344,13 +2344,13 @@ export default function App() {
           }
         }}
       >
-        <div className="relative z-10 px-24 py-12 text-center flex items-center justify-center max-w-[75%] min-h-[140px]">
+        <div className="relative z-10 px-4 py-3 sm:px-8 sm:py-4 md:px-12 md:py-6 text-center flex items-center justify-center w-full max-w-[85%] sm:max-w-[75%] min-h-[50px] sm:min-h-[70px]">
           {currentThemeText ? (
             <div className="relative group/text inline-block">
               <div 
                 className="font-serif whitespace-pre-wrap font-medium"
                 style={{ 
-                  fontSize: `${currentThemeStyle.size || appSettings.themeFontSize || 13}px`, 
+                  fontSize: `${(currentThemeStyle.size && currentThemeStyle.size > 8) ? currentThemeStyle.size : (appSettings.themeFontSize && appSettings.themeFontSize > 8 ? appSettings.themeFontSize : 14)}px`, 
                   lineHeight: '1.25',
                   color: currentThemeStyle.color || '#3d2514',
                   textAlign: currentThemeStyle.align || 'center',
