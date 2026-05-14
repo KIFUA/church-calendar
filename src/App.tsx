@@ -2348,7 +2348,7 @@ export default function App() {
 
     return (
       <div 
-        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[45%] sm:w-[35%] lg:max-w-[15.625rem] mx-auto min-h-[30px] sm:min-h-[40px] md:min-h-[45px]`}
+        className={`relative flex items-center justify-center transition-all duration-300 group ${!currentThemeText && activeTab === 'admin' ? 'cursor-pointer' : ''} w-[80%] sm:w-[60%] md:w-[40%] lg:max-w-[18.75rem] mx-auto min-h-[35px] sm:min-h-[45px] md:min-h-[50px]`}
         style={{
           backgroundImage: `url("/parchment.png")`,
           backgroundSize: '100% 100%',
@@ -2361,9 +2361,9 @@ export default function App() {
           }
         }}
       >
-        <div className="relative z-10 px-2 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 text-center flex items-center justify-center w-full max-w-[85%] sm:max-w-[75%] min-h-[25px] sm:min-h-[35px]">
+        <div className="relative z-10 px-1 py-1.5 sm:px-2 sm:py-2 md:px-3 md:py-3 text-center flex items-center justify-center w-full max-w-[90%] sm:max-w-[85%] min-h-[25px] sm:min-h-[35px]">
           {currentThemeText ? (
-            <div className="relative group/text inline-block">
+            <div className="relative group/text inline-block w-full">
               <div 
                 className="font-serif whitespace-pre-wrap font-medium"
                 style={{ 
@@ -2377,6 +2377,7 @@ export default function App() {
                   textShadow: '0.5px 0.5px 0px rgba(255,255,255,0.3)',
                   fontFamily: '"Izhitsa", "Monomakh", "Ruslan Display", "Kurale", "Alice", "Cormorant Garamond", serif',
                   wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
                   hyphens: 'auto'
                 }}
               >
