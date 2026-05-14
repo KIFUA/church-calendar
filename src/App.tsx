@@ -1644,16 +1644,21 @@ export default function App() {
       // Increase delay to let browser apply styles fully
       await new Promise(resolve => setTimeout(resolve, 500));
 
+      // Use html2pdf or similar for better quality? 
+      // For now, let's fix the screen capture method to not be a screenshot but capture the HTML directly if possible.
+      // Actually, since I have jsPDF and dom-to-image, I will improve text rendering by increasing scale.
+      
       const imgData = await domtoimage.toPng(tableElement, {
         bgcolor: '#ffffff',
         width: tableElement.scrollWidth,
         height: tableElement.scrollHeight,
         style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left'
+          transform: 'scale(2)', // Keep high scale
+          transformOrigin: 'top left',
+          width: tableElement.scrollWidth + 'px',
+          height: tableElement.scrollHeight + 'px'
         },
         filter: (node) => {
-          // Filter out elements with 'no-print-pdf' class
           if (node.classList && node.classList.contains('no-print-pdf')) {
             return false;
           }
@@ -1668,23 +1673,29 @@ export default function App() {
         format: 'a4'
       });
       
+      // Add title
+      pdf.setFontSize(16);
+      pdf.text('Архів: Залучення проповідників', pdf.internal.pageSize.getWidth() / 2, 10, { align: 'center' });
+      
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const pdfHeight = pdf.internal.pageSize.getHeight() - 20; // Leave space for title
       
       const img = new Image();
       img.src = imgData;
       await new Promise(resolve => { img.onload = resolve; });
 
+      // Scale to fit content properly based on content (not just width)
+      // Since it's landscape, try to fit width first
       let imgWidth = pdfWidth - 20; 
       let imgHeight = (img.height * imgWidth) / img.width;
       
-      if (imgHeight > pdfHeight - 20) {
-        imgHeight = pdfHeight - 20;
+      if (imgHeight > pdfHeight) {
+        imgHeight = pdfHeight;
         imgWidth = (img.width * imgHeight) / img.height;
       }
       
       const xOffset = (pdfWidth - imgWidth) / 2;
-      pdf.addImage(imgData, 'PNG', xOffset, 10, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', xOffset, 15, imgWidth, imgHeight);
       
       const fileName = `ЗАЛУЧ. ПРОПОВІДНИКІВ_АРХІВ.pdf`;
       const pdfOutput = pdf.output('blob');
