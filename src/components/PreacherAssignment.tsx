@@ -121,7 +121,8 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       const startMonthName = monthNames[startMonth];
       const endMonthName = monthNames[endMonth];
       
-      const fileName = `ЗАЛУЧ. ПРОПОВ._${startMonthName}${startYear} - ${endMonthName}${endYear}.pdf`;
+      const fileName = `ЗАЛУЧ. ПРОПОВ._${startMonthName}${startYear}-${endMonthName}${endYear}.pdf`;
+      console.log('PDF Filename:', fileName);
       pdf.save(fileName);
 
       // Restore original styles
