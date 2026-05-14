@@ -121,9 +121,16 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       const startMonthName = monthNames[startMonth];
       const endMonthName = monthNames[endMonth];
       
-      const fileName = `ЗАЛУЧ. ПРОПОВ._${startMonthName}${startYear}-${endMonthName}${endYear}.pdf`;
-      console.log('PDF Filename:', fileName);
-      pdf.save(fileName);
+      const fileName = `ЗАЛУЧ. ПРОПОВ._${startMonthName}${startYear} - ${endMonthName}${endYear}.pdf`;
+      const pdfOutput = pdf.output('blob');
+      const url = URL.createObjectURL(pdfOutput);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
       // Restore original styles
       tableElement.style.maxHeight = originalMaxHeight;
